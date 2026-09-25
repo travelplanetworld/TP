@@ -96,10 +96,10 @@ export async function PATCH(request: Request) {
     }
 
     AuditLogger.getInstance().log({
-      action: 'CONNECTOR_UPDATED',
-      entityType: 'CONNECTOR',
+      action: 'UPDATE',
+      entityType: 'Connector',
       entityId: code,
-      metadata: { newStatus: status, credentialConfigured: Boolean(credentialRefId) },
+      metadata: { event: 'CONNECTOR_UPDATED', newStatus: status, credentialConfigured: Boolean(credentialRefId) },
     });
 
     return NextResponse.json({

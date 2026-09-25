@@ -118,3 +118,24 @@ export function authorizeAction(context: AuthContext, permission: Permission): v
     throw new Error(`Unauthorized: User ${context.email} (${context.role}) lacks permission ${permission}`);
   }
 }
+
+export class RbacService {
+  private static instance: RbacService;
+
+  private constructor() {}
+
+  public static getInstance(): RbacService {
+    if (!RbacService.instance) {
+      RbacService.instance = new RbacService();
+    }
+    return RbacService.instance;
+  }
+
+  public hasPermission(role: string, permission: string): boolean {
+    return hasPermission(role as Role, permission as Permission);
+  }
+
+  public authorizeAction(context: AuthContext, permission: Permission): void {
+    authorizeAction(context, permission);
+  }
+}

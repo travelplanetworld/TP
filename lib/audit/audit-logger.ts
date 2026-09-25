@@ -5,17 +5,20 @@
  * Non-negotiable rule: Every privileged action must have authorization and auditability.
  */
 
+export type AuditAction = string;
+export type AuditEntityType = string;
+
 export interface AuditRecord {
   userId?: string;
   userEmail?: string;
   role?: string;
-  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'AUTHORIZE' | 'SETTLE' | 'REFUND' | 'OVERRIDE';
-  entityType: 'Booking' | 'Payment' | 'VendorContract' | 'Price' | 'User' | 'Connector';
+  action: AuditAction;
+  entityType: AuditEntityType;
   entityId: string;
   changes?: Record<string, { before: unknown; after: unknown }>;
   metadata?: Record<string, unknown>;
   ipAddress?: string;
-  timestamp: Date;
+  timestamp?: Date;
 }
 
 export class AuditLogger {
