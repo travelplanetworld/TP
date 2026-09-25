@@ -55,7 +55,7 @@ export interface AISkillResult {
   skillName: string;
   status: 'SUCCESS' | 'REQUIRES_APPROVAL' | 'FAILED';
   summary: string;
-  data: Record<string, unknown>;
+  data: Record<string, any>;
   consequentialAction?: ActionDefinition;
 }
 
