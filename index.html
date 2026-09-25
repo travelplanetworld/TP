@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Travel Planet — Go somewhere worth remembering</title>
-  <!-- Local Offline-First Tailwind CSS & UI Libraries (Zero External DNS / Network Dependency) -->
+  <!-- High-Performance Pre-compiled Static Tailwind CSS (Zero FOUC, Instant Load) -->
+  <link rel="stylesheet" href="tailwind-compiled.css">
   <script src="tailwind-cdn.js"></script>
   <script src="lucide.min.js"></script>
   <script src="confetti.min.js"></script>
@@ -40,6 +41,27 @@
   </script>
   <style>
     body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    /* Brand custom utility rules (100% independent of JS runtime) */
+    .bg-brand-50 { background-color: #f0f9ff !important; }
+    .bg-brand-100 { background-color: #e0f2fe !important; }
+    .bg-brand-200 { background-color: #bae6fd !important; }
+    .bg-brand-500 { background-color: #0284c7 !important; }
+    .bg-brand-600 { background-color: #0369a1 !important; }
+    .bg-brand-700 { background-color: #075985 !important; }
+    .bg-brand-800 { background-color: #0c4a6e !important; }
+    .bg-brand-900 { background-color: #082f49 !important; }
+    .text-brand-500 { color: #0284c7 !important; }
+    .text-brand-600 { color: #0369a1 !important; }
+    .text-brand-700 { color: #075985 !important; }
+    .text-brand-800 { color: #0c4a6e !important; }
+    .text-brand-900 { color: #082f49 !important; }
+    .border-brand-100 { border-color: #e0f2fe !important; }
+    .border-brand-200 { border-color: #bae6fd !important; }
+    .border-brand-300 { border-color: #7dd3fc !important; }
+    .border-brand-500 { border-color: #0284c7 !important; }
+    .border-brand-600 { border-color: #0369a1 !important; }
+    .hover\:bg-brand-600:hover { background-color: #0369a1 !important; }
+    .hover\:bg-brand-500:hover { background-color: #0284c7 !important; }
     .glass-card {
       background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(12px);
