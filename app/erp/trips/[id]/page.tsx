@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Navbar } from '@/components/travel/Navbar';
 import { 
   Plane, Hotel, Car, Compass, ShieldCheck, CheckCircle2, 
-  Clock, AlertTriangle, User, Calendar, MapPin, Download, 
+  Clock, AlertTriangle, User, Users, Calendar, MapPin, Download, 
   ExternalLink, PhoneCall, MessageSquare, ArrowRight 
 } from 'lucide-react';
 import Link from 'next/link';

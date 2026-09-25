@@ -11,7 +11,28 @@
  * - Instant direct airline PNR creation
  */
 
-import { BaseConnector, InventoryItem, SearchParams } from '../base-connector';
+/**
+ * Local provider shapes for direct-airline offer payloads (kept self-contained
+ * so this connector does not depend on the aggregate BaseConnector contract).
+ */
+export interface NDCSearchParams {
+  origin?: string;
+  destination?: string;
+  departureDate?: string;
+  guestsCount?: number;
+  cabinClass?: string;
+}
+
+export interface NDCInventoryItem {
+  id: string;
+  supplierId: string;
+  title: string;
+  category: 'FLIGHT';
+  price: number;
+  currency: string;
+  availability: boolean;
+  metadata: Record<string, unknown>;
+}
 
 export interface NDCAncillaryItem {
   id: string;
@@ -41,14 +62,20 @@ export interface NDCFlightOffer {
   ancillariesAvailable: NDCAncillaryItem[];
 }
 
-export class NDCConnector extends BaseConnector {
+export class NDCConnector {
+  readonly id: string;
+  readonly code: string;
+  readonly name: string;
+  readonly type = 'REST_API' as const;
+  readonly capabilities = ['SEARCH', 'OFFER_PRICE', 'BOOK', 'ANCILLARY'];
+  public isAuthenticated = false;
+  readonly endpoint: string;
+
   constructor(airline: 'INDIGO' | 'EMIRATES' = 'INDIGO') {
-    super(
-      `NDC_${airline}_DIRECT`,
-      airline === 'INDIGO' ? 'IndiGo 6E NDC Direct Connect' : 'Emirates Direct NDC Gateway',
-      'FLIGHT',
-      airline === 'INDIGO' ? 'https://ndc.goindigo.in/api/v21.3' : 'https://gateway.emirates.com/ndc/v21.3'
-    );
+    this.id = `NDC_${airline}_DIRECT`;
+    this.code = this.id;
+    this.name = airline === 'INDIGO' ? 'IndiGo 6E NDC Direct Connect' : 'Emirates Direct NDC Gateway';
+    this.endpoint = airline === 'INDIGO' ? 'https://ndc.goindigo.in/api/v21.3' : 'https://gateway.emirates.com/ndc/v21.3';
   }
 
   public async authenticate(): Promise<boolean> {
@@ -57,7 +84,7 @@ export class NDCConnector extends BaseConnector {
     return true;
   }
 
-  public async search(params: SearchParams): Promise<InventoryItem[]> {
+  public async search(params: NDCSearchParams): Promise<NDCInventoryItem[]> {
     const origin = params.origin || 'DEL';
     const destination = params.destination || 'DXB';
     const departureDate = params.departureDate || new Date().toISOString().split('T')[0];

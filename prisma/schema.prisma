@@ -81,6 +81,8 @@ model User {
   auditLogs            AuditLog[]
   aiConversations      AIConversation[]
   teamMemberships      TeamMember[]
+  authoredJourneys     TravelJourney[]
+  authoredDiaries      PlaceDiary[]
 
   @@index([email])
   @@index([role])
@@ -367,21 +369,46 @@ model Destination {
   attractions  Attraction[]
   products     Product[]
   packages     Package[]
+  journeys     TravelJourney[]
+  insights     DestinationInsight[]
 
   @@index([slug])
 }
 
 model Place {
-  id            String      @id @default(cuid())
-  destinationId String
-  destination   Destination @relation(fields: [destinationId], references: [id])
-  name          String
-  description   String?
-  category      String
-  latitude      Float?
-  longitude     Float?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id                String      @id @default(cuid())
+  slug              String      @unique
+  name              String
+  destinationId     String
+  destination       Destination @relation(fields: [destinationId], references: [id])
+  country           String?
+  state             String?
+  city              String?
+  description       String?
+  coverImage        String?
+  gallery           String[]
+  category          String
+  tags              String[]
+  highlights        String[]
+  bestTime          String?
+  howToReach        String?
+  travelTips        String?
+  accessibility     String?
+  familySuitability String?
+  latitude          Float?
+  longitude         Float?
+  seo               Json?
+  status            String      @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  diaries           PlaceDiary[]
+  experiences       PlaceExperience[]
+  journeys          JourneyPlace[]
+
+  @@index([slug])
+  @@index([destinationId])
+  @@index([status])
 }
 
 model Attraction {
@@ -448,6 +475,7 @@ model Product {
   offers        Offer[]
   packageComponents PackageComponent[]
   bookingItems  BookingItem[]
+  placeExperiences PlaceExperience[]
 
   @@index([category])
   @@index([slug])
@@ -1054,4 +1082,536 @@ model AuditLog {
   @@index([workspaceId])
   @@index([action])
   @@index([createdAt])
+}
+
+// ==========================================
+// 13. VIBE — VISUAL INTELLIGENCE & BUILDER ENGINE
+// Architecture: DATA != EXPERIENCE != WORKFLOW; BUILDER != RUNTIME
+// ==========================================
+
+enum ExperienceType {
+  PAGE
+  LANDING_PAGE
+  DESTINATION
+  PLACE
+  JOURNEY
+  DIARY
+  GUIDE
+  DASHBOARD
+  WORKSPACE
+  PORTAL
+  FORM
+  BOOKING_FLOW
+  SEARCH
+  CHECKOUT
+  REPORT
+  CAMPAIGN
+  APPLICATION
+}
+
+enum ExperienceStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ExperienceVisibility {
+  PUBLIC
+  PRIVATE
+  WORKSPACE
+  ORGANIZATION
+}
+
+// --- Central Slug Registry (§15) ---
+
+enum SlugEntityType {
+  DESTINATION
+  COUNTRY
+  STATE
+  CITY
+  PLACE
+  ATTRACTION
+  HOTEL
+  EXPERIENCE
+  PACKAGE
+  JOURNEY
+  DIARY
+  TRAVEL_GUIDE
+  TRAVEL_STORY
+  LANDING_PAGE
+  BLOG
+  PAGE
+}
+
+model Slug {
+  id              String          @id @default(cuid())
+  slug            String
+  canonicalPath   String
+  entityType      SlugEntityType
+  entityId        String
+  parentSlug      String?
+  locale          String          @default("en")
+  status          String          @default("ACTIVE") // ACTIVE, REDIRECTED, ARCHIVED
+  isCanonical     Boolean         @default(true)
+  redirectTo      String?
+  metaTitle       String?
+  metaDescription String?
+  organizationId  String?
+  workspaceId     String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([slug, locale, entityType])
+  @@index([slug])
+  @@index([canonicalPath])
+  @@index([entityType, entityId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+model Redirect {
+  id         String   @id @default(cuid())
+  fromPath   String   @unique
+  toPath     String
+  statusCode Int      @default(301)
+  reason     String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([fromPath])
+}
+
+// --- Experience + immutable version history (§05, §43) ---
+
+model Experience {
+  id               String               @id @default(cuid())
+  name             String
+  slug             String               @unique
+  type             ExperienceType
+  status           ExperienceStatus     @default(DRAFT)
+  visibility       ExperienceVisibility @default(PRIVATE)
+  templateId       String?
+  template         ExperienceTemplate?  @relation(fields: [templateId], references: [id])
+  // Composition JSONB: { nodes: [ { id, componentId|sectionId, props, bindings, conditions, actions, children, responsive, style } ] }
+  draftComposition Json?
+  publishedVersion Int?
+  dataSources      Json?
+  permissions      Json?
+  theme            Json?
+  entityType       SlugEntityType?
+  entityId         String?
+  version          Int                  @default(1)
+  organizationId   String?
+  workspaceId      String?
+  createdBy        String?
+  updatedBy        String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  versions         ExperienceVersion[]
+
+  @@index([slug])
+  @@index([type])
+  @@index([status])
+  @@index([organizationId])
+  @@index([workspaceId])
+  @@index([entityType, entityId])
+}
+
+model ExperienceVersion {
+  id           String              @id @default(cuid())
+  experienceId String
+  experience   Experience          @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  version      Int
+  status       ExperienceStatus
+  // Immutable snapshot of composition at publish time
+  composition  Json
+  changeNote   String?
+  publishedBy  String?
+  publishedAt  DateTime?
+  createdBy    String?
+  createdAt    DateTime            @default(now())
+
+  @@unique([experienceId, version])
+  @@index([experienceId])
+  @@index([publishedAt])
+}
+
+// --- Registries: Component / Section / Template / Widget (§08-10, §26) ---
+
+model ComponentDefinition {
+  id             String   @id @default(cuid())
+  key            String   // e.g. "hero", "destinationCard"
+  name           String
+  category       String   // GENERIC | TRAVEL | DASHBOARD
+  version        Int      @default(1)
+  schema         Json     // structural schema
+  propsSchema    Json     // schema-driven configuration
+  dataBindings   Json?    // allowed binding paths
+  events         Json?
+  actions        Json?
+  responsiveRules Json?
+  styleTokens    Json?
+  permissions    Json?
+  status         String   @default("ACTIVE") // ACTIVE, DEPRECATED
+  createdBy      String?
+  updatedBy      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([key, version])
+  @@index([category])
+  @@index([status])
+}
+
+model SectionDefinition {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g. "destination.hero.v1"
+  name        String
+  family      String   // destination, journey, diary, dashboard...
+  version     Int      @default(1)
+  // Composition subtree referencing ComponentDefinition keys
+  composition Json
+  dataNeeds   Json?    // required bindings
+  variants    Json?
+  status      String   @default("ACTIVE")
+  createdBy   String?
+  updatedBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([family])
+  @@index([status])
+}
+
+model ExperienceTemplate {
+  id          String              @id @default(cuid())
+  key         String              @unique // e.g. "tpl.destination"
+  name        String
+  type        ExperienceType
+  category    String?
+  parentId    String?
+  parent      ExperienceTemplate? @relation("TemplateInheritance", fields: [parentId], references: [id])
+  children    ExperienceTemplate[] @relation("TemplateInheritance")
+  baseComposition Json
+  inheritedDataSources Json?
+  version     Int                 @default(1)
+  status      String              @default("ACTIVE")
+  organizationId String?
+  createdBy   String?
+  updatedBy   String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  experiences Experience[]
+
+  @@index([type])
+  @@index([parentId])
+}
+
+model WidgetDefinition {
+  id              String   @id @default(cuid())
+  type            String   // KPI, CHART, TABLE, KANBAN, ...
+  title           String
+  dataSource      String
+  dataScope       String   @default("WORKSPACE")
+  permissions     Json?
+  refreshIntervalMs Int?
+  width           Int      @default(3)
+  height          Int?
+  roleBindings    Json?
+  config          Json?
+  status          String   @default("ACTIVE")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([type])
+}
+
+// --- Design System (§30) ---
+
+model StyleToken {
+  id        String   @id @default(cuid())
+  group     String   // typography, colors, spacing, radius, shadows, borders, breakpoints
+  name      String
+  value     String
+  theme     String   @default("default")
+  updatedAt DateTime @updatedAt
+
+  @@unique([group, name, theme])
+  @@index([group])
+}
+
+// --- Media references (§53) ---
+
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  caption   String?
+  width     Int?
+  height    Int?
+  mimeType  String?
+  size      Int?
+  kind      String   @default("IMAGE") // IMAGE, VIDEO, DOCUMENT
+  metadata  Json?
+  folder    String?
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  @@index([kind])
+  @@index([folder])
+}
+
+// --- Travel domain first-class entities ---
+
+model TravelJourney {
+  id             String           @id @default(cuid())
+  slug           String           @unique
+  title          String
+  subtitle       String?
+  description    String?
+  journeyType    String           @default("CURATED")
+  capability     String           @default("INSPIRATIONAL") // INSPIRATIONAL, PLANNABLE, QUOTABLE, BOOKABLE
+  status         String           @default("DRAFT")
+  visibility     String           @default("PRIVATE")
+  authorId       String?
+  author         User?            @relation(fields: [authorId], references: [id])
+  destinationId  String?
+  destination    Destination?     @relation(fields: [destinationId], references: [id])
+  origin         String?
+  durationDays   Int?
+  travellerProfile Json?
+  travelStyle    String?
+  budgetRange    Json?
+  season         String?
+  coverImage     String?
+  gallery        String[]
+  highlights     String[]
+  tags           String[]
+  seo            Json?
+  metadata       Json?
+  organizationId String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  days           JourneyDay[]
+  places         JourneyPlace[]
+  diaries        PlaceDiary[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([destinationId])
+  @@index([organizationId])
+}
+
+model JourneyDay {
+  id            String   @id @default(cuid())
+  journeyId     String
+  journey       TravelJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  dayNumber     Int
+  title         String
+  description   String?
+  startLocation String?
+  endLocation   String?
+  route         Json?
+  estimatedCost Decimal? @db.Decimal(12, 2)
+  travelTime    String?
+  notes         String?
+  media         Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  items         JourneyDayItem[]
+
+  @@unique([journeyId, dayNumber])
+  @@index([journeyId])
+}
+
+enum JourneyDayItemType {
+  PLACE
+  ATTRACTION
+  ACTIVITY
+  MEAL
+  ACCOMMODATION
+  TRANSPORT
+  EXPERIENCE
+}
+
+model JourneyDayItem {
+  id          String             @id @default(cuid())
+  dayId       String
+  day         JourneyDay         @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  type        JourneyDayItemType
+  refEntityId String?
+  title       String
+  description String?
+  startTime   String?
+  cost        Decimal?           @db.Decimal(12, 2)
+  orderIndex  Int                @default(0)
+  metadata    Json?
+
+  @@index([dayId])
+  @@index([refEntityId])
+}
+
+model JourneyPlace {
+  id        String        @id @default(cuid())
+  journeyId String
+  journey   TravelJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  placeId   String
+  place     Place         @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  role      String        @default("STOP") // STAY, VISIT, TRANSIT
+
+  @@unique([journeyId, placeId])
+  @@index([journeyId])
+  @@index([placeId])
+}
+
+model PlaceExperience {
+  id        String  @id @default(cuid())
+  placeId   String
+  place     Place   @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([placeId, productId])
+  @@index([placeId])
+}
+
+enum DiaryStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+  FLAGGED
+}
+
+model PlaceDiary {
+  id                 String      @id @default(cuid())
+  slug               String      @unique
+  title              String
+  authorId           String?
+  author             User?       @relation(fields: [authorId], references: [id])
+  placeId            String?
+  place              Place?      @relation(fields: [placeId], references: [id])
+  journeyId          String?
+  journey            TravelJourney? @relation(fields: [journeyId], references: [id])
+  visitDate          DateTime?
+  duration           String?
+  travelCompanions   String?
+  travelStyle        String?
+  season             String?
+  coverImage         String?
+  gallery            String[]
+  video              String?
+  story              String?
+  whatISaw           String?
+  whatIDid           String?
+  whatIAte           String?
+  whereIStayed       String?
+  whatSurprisedMe    String?
+  whatIDoDifferently String?
+  practicalNotes     String?
+  bestTime           String?
+  gettingThere       String?
+  budget             Json?
+  crowdLevel         String?
+  difficulty         String?
+  accessibility      String?
+  status             DiaryStatus @default(DRAFT)
+  seo                Json?
+  organizationId     String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  media              DiaryMedia[]
+  observations       PlaceObservation[]
+
+  @@index([slug])
+  @@index([placeId])
+  @@index([journeyId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+model DiaryMedia {
+  id         String   @id @default(cuid())
+  diaryId    String
+  diary      PlaceDiary @relation(fields: [diaryId], references: [id], onDelete: Cascade)
+  url        String
+  caption    String?
+  kind       String   @default("IMAGE")
+  orderIndex Int      @default(0)
+  mediaId    String?
+
+  @@index([diaryId])
+}
+
+// --- Diary -> Destination Intelligence (§22) with provenance ---
+
+model PlaceObservation {
+  id              String      @id @default(cuid())
+  placeId         String?
+  destinationId   String?
+  attribute       String      // weatherCondition, roadCondition, crowdLevel, season...
+  value           String
+  timeOfDay       String?
+  season          String?
+  sourceType      String      // DIARY, MANUAL, API
+  sourceId        String?
+  sourceDiaryId   String?
+  sourceDiary     PlaceDiary? @relation(fields: [sourceDiaryId], references: [id])
+  author          String?
+  visitDate       DateTime?
+  extractionMethod String     @default("MANUAL") // MANUAL, AI
+  confidence      Float       @default(0.5)
+  verified        Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+
+  insight         DestinationInsight? @relation(fields: [insightId], references: [id])
+  insightId       String?
+
+  @@index([placeId])
+  @@index([destinationId])
+  @@index([attribute])
+  @@index([sourceType, sourceId])
+}
+
+model DestinationInsight {
+  id            String   @id @default(cuid())
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  attribute     String
+  label         String   // human-readable, e.g. "Traveler diary reports: rain in afternoons"
+  value         String
+  evidenceCount Int      @default(0)
+  isUniversal   Boolean  @default(false) // NEVER auto-promote to absolute fact
+  confidence    Float    @default(0.5)
+  verified      Boolean  @default(false)
+  provenance    Json?
+  updatedAt     DateTime @updatedAt
+
+  observations  PlaceObservation[]
+
+  @@unique([destinationId, attribute])
+  @@index([destinationId])
+}
+
+// --- Page overrides for template inheritance (§32) ---
+
+model PageOverride {
+  id           String  @id @default(cuid())
+  experienceId String
+  sectionKey   String
+  overrides    Json
+  order        Int     @default(0)
+  isActive     Boolean @default(true)
+  updatedAt    DateTime @updatedAt
+
+  @@index([experienceId])
 }

@@ -42,6 +42,9 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
       'integrations.view', 'webhooks.view', 'sync.view',
       'ai.view', 'ai.chat', 'ai.actions',
       'content.view', 'marketing.view',
+      'vibe.view', 'vibe.create', 'vibe.edit', 'vibe.publish', 'vibe.view_drafts',
+      'vibe.manage_components', 'vibe.manage_workspaces',
+      'places.manage', 'journeys.manage', 'diaries.manage', 'diaries.publish',
       'analytics.view', 'analytics.export',
       'audit.view', 'settings.view', 'settings.manage',
     ],
@@ -225,6 +228,9 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
       'content.view', 'content.create', 'content.update', 'content.publish',
       'offers.view',
       'ai.view', 'ai.chat',
+      // VIBE builder
+      'vibe.view', 'vibe.create', 'vibe.edit', 'vibe.view_drafts', 'vibe.publish',
+      'places.manage', 'journeys.manage', 'diaries.manage',
     ],
   },
 

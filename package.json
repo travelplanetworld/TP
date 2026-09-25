@@ -12,13 +12,15 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "db:push": "prisma db push",
     "db:seed": "ts-node prisma/seed.ts",
+    "db:seed:vibe": "ts-node prisma/seed-vibe.ts",
     "db:seed:rbac": "ts-node prisma/seed.ts",
+    "db:push": "prisma db push",
     "test:rbac": "node tests/rbac-matrix.test.js",
     "test:tenant-isolation": "node tests/tenant-isolation.test.js",
     "test:operational-chain": "node tests/operational-chain.test.js",
-    "test:all": "node tests/rbac-matrix.test.js && node tests/tenant-isolation.test.js && node tests/operational-chain.test.js"
+    "test:vibe": "node tests/vibe-engine.test.js",
+    "test:all": "node tests/rbac-matrix.test.js && node tests/tenant-isolation.test.js && node tests/operational-chain.test.js && node tests/vibe-engine.test.js"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
@@ -36,6 +38,7 @@
     "postcss": "^8.4.45",
     "prisma": "^5.19.0",
     "tailwindcss": "^3.4.10",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
   }
 }

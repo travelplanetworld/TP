@@ -67,6 +67,12 @@ export default function AdminCommandCenterPage() {
               Approval Center (4) →
             </Link>
           </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-slate-400 font-bold uppercase text-[10px] mr-1">Content &amp; Experience:</span>
+            <Link href="/admin/builder" className="px-3 py-1.5 rounded-lg bg-cyan-950 text-cyan-300 hover:bg-cyan-900 border border-cyan-800 font-bold transition flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5" /> VIBE Builder →
+            </Link>
+          </div>
           <Link href="/crm/customers/usr_cust_rahul" className="text-xs text-sky-400 hover:underline font-bold">
             Customer 360 Spotlight →
           </Link>

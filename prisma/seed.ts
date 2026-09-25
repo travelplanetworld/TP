@@ -137,12 +137,12 @@ async function main() {
 
   // 4. Connectors Fleet (Section 16)
   const connectors = [
-    { code: 'NDC_INDIGO', name: 'IndiGo Direct NDC API', category: 'INVENTORY', status: ConnectorStatus.CONFIGURED },
-    { code: 'NDC_AIRINDIA', name: 'Air India NDC Gateway', category: 'INVENTORY', status: ConnectorStatus.CONFIGURED },
-    { code: 'NDC_EMIRATES', name: 'Emirates Skywards NDC', category: 'INVENTORY', status: ConnectorStatus.CONFIGURED },
+    { code: 'NDC_INDIGO', name: 'IndiGo Direct NDC API', category: 'INVENTORY', status: ConnectorStatus.ACTIVE },
+    { code: 'NDC_AIRINDIA', name: 'Air India NDC Gateway', category: 'INVENTORY', status: ConnectorStatus.ACTIVE },
+    { code: 'NDC_EMIRATES', name: 'Emirates Skywards NDC', category: 'INVENTORY', status: ConnectorStatus.ACTIVE },
     { code: 'HOTELBEDS', name: 'Hotelbeds Bedbank', category: 'INVENTORY', status: ConnectorStatus.NOT_CONFIGURED },
     { code: 'AMADEUS', name: 'Amadeus Travel GDS', category: 'INVENTORY', status: ConnectorStatus.NOT_CONFIGURED },
-    { code: 'RAZORPAY', name: 'Razorpay PG Hub', category: 'PAYMENT', status: ConnectorStatus.CONFIGURED },
+    { code: 'RAZORPAY', name: 'Razorpay PG Hub', category: 'PAYMENT', status: ConnectorStatus.ACTIVE },
     { code: 'CASHFREE', name: 'Cashfree PG Hub', category: 'PAYMENT', status: ConnectorStatus.NOT_CONFIGURED },
   ];
 

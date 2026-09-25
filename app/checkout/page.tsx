@@ -1,12 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { Navbar } from '@/components/travel/Navbar';
 import { Footer } from '@/components/travel/Footer';
 import { ShieldCheck, CreditCard, Lock, CheckCircle, AlertTriangle, ArrowRight, User, FileText, Check } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
 export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-slate-500">Loading secure checkout…</div>}>
+      <CheckoutContent />
+    </Suspense>
+  );
+}
+
+function CheckoutContent() {
   const searchParams = useSearchParams();
   const rawPrice = searchParams ? searchParams.get('price') : null;
   const initialBaseAmount = rawPrice ? parseInt(rawPrice, 10) : 59999;

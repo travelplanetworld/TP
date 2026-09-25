@@ -132,8 +132,25 @@ export const PERMISSION_DEFINITIONS: PermissionDefinition[] = [
   // Settings
   { code: 'settings.view', domain: 'settings', resource: 'settings', action: 'view', description: 'View platform branding and organizational configuration' },
   { code: 'settings.manage', domain: 'settings', resource: 'settings', action: 'manage', description: 'Mutate organization settings, domains and white-label themes' },
+
+  // VIBE — Visual Intelligence & Builder Engine
+  { code: 'vibe.view', domain: 'content', resource: 'experience', action: 'view', description: 'View experiences, templates and registry definitions in VIBE' },
+  { code: 'vibe.create', domain: 'content', resource: 'experience', action: 'create', description: 'Create experiences and compose sections in the VIBE builder' },
+  { code: 'vibe.edit', domain: 'content', resource: 'experience', action: 'edit', description: 'Edit draft compositions, bindings and actions in VIBE' },
+  { code: 'vibe.publish', domain: 'content', resource: 'experience', action: 'publish', description: 'Publish or rollback immutable experience versions (consequential)' },
+  { code: 'vibe.view_drafts', domain: 'content', resource: 'experience', action: 'view_drafts', description: 'Preview unpublished draft experiences via secured preview tokens' },
+  { code: 'vibe.manage_components', domain: 'content', resource: 'registry', action: 'manage', description: 'Create and version Component, Section, Template and Widget registry objects' },
+  { code: 'vibe.manage_design_system', domain: 'content', resource: 'design_system', action: 'manage', description: 'Govern design tokens, themes and style variants centrally' },
+  { code: 'vibe.manage_workspaces', domain: 'content', resource: 'workspace_composition', action: 'manage', description: 'Compose role-based workspaces and dashboards (RBWA)' },
+  { code: 'places.manage', domain: 'content', resource: 'place', action: 'manage', description: 'Manage first-class Place entities and their relationships' },
+  { code: 'diaries.manage', domain: 'content', resource: 'diary', action: 'manage', description: 'Moderate PlaceDiary submissions through the publish workflow' },
+  { code: 'diaries.publish', domain: 'content', resource: 'diary', action: 'publish', description: 'Publish traveler diaries publicly (consequential)' },
+  { code: 'journeys.manage', domain: 'content', resource: 'journey', action: 'manage', description: 'Manage curated and traveler-planned journeys' },
 ];
 
 export type PermissionCode = typeof PERMISSION_DEFINITIONS[number]['code'];
+
+/** Full permission definition list (array form for counting/enumeration) */
+export const ALL_PERMISSIONS: typeof PERMISSION_DEFINITIONS = PERMISSION_DEFINITIONS;
 
 export const ALL_PERMISSION_CODES: Set<string> = new Set(PERMISSION_DEFINITIONS.map(p => p.code));
