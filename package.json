@@ -12,7 +12,12 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed:rbac": "ts-node prisma/seed.ts",
+    "test:rbac": "node tests/rbac-matrix.test.js",
+    "test:tenant-isolation": "node tests/tenant-isolation.test.js",
+    "test:all": "node tests/rbac-matrix.test.js && node tests/tenant-isolation.test.js"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
