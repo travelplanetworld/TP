@@ -1,124 +1,140 @@
 /**
- * Travel Planet — Role Based Access Control (RBAC)
- * Governing document: 01_MASTER_SYSTEM_INSTRUCTION.md, 07_ADMIN_OS.md, 14_SECURITY_COMPLIANCE.md
+ * Travel Planet (Voyage8) — Master Role Based Access Control (RBAC)
+ * Governing: Master Architecture, Security Compliance & Admin OS
  * 
  * Super Admin Principal: Amal Babu
  */
 
+import { SYSTEM_ROLES } from './roles';
+import { PERMISSION_DEFINITIONS } from './permissions';
+import { AuthorizationEngine, AuthUser } from './rbac-engine';
+import { ScopeEvaluator, ResourceScopeTarget, DataScope } from './scopes';
+import { RbacAuditLogger, AuditActionResult } from './audit';
+import { TestFixturesManager } from './test-fixtures';
+
+// Re-exports
+export * from './roles';
+export * from './permissions';
+export * from './scopes';
+export * from './audit';
+export * from './rbac-engine';
+export * from './test-fixtures';
+
+// Backwards-compatible Role type
 export type Role =
-  | 'SUPER_ADMIN'
+  | 'PLATFORM_SUPER_ADMIN'
+  | 'ADMIN'
   | 'OPERATIONS_MANAGER'
+  | 'TRAVEL_AGENT'
+  | 'SALES_MANAGER'
+  | 'CRM_MANAGER'
   | 'FINANCE_MANAGER'
-  | 'CRM_AGENT'
+  | 'ACCOUNTANT'
+  | 'SUPPLIER_MANAGER'
   | 'VENDOR_ADMIN'
+  | 'VENDOR_OPERATOR'
+  | 'CUSTOMER_SUPPORT'
+  | 'CONTENT_MANAGER'
+  | 'MARKETING_MANAGER'
+  | 'INTEGRATION_MANAGER'
+  | 'AI_OPERATOR'
+  | 'ANALYST'
+  | 'CUSTOMER'
+  | 'PARTNER'
+  // Legacy aliases
+  | 'SUPER_ADMIN'
+  | 'CRM_AGENT'
   | 'PARTNER_AGENT'
   | 'CONSUMER';
 
-export type Permission =
-  | 'all:manage'
-  | 'booking:read'
-  | 'booking:create'
-  | 'booking:cancel'
-  | 'booking:modify'
-  | 'trip:manage'
-  | 'refund:request'
-  | 'refund:authorize'
-  | 'pricing:view'
-  | 'pricing:mutate'
-  | 'vendor:manage'
-  | 'settlement:manage'
-  | 'connector:view'
-  | 'connector:configure'
-  | 'connector:trigger_sync'
-  | 'finance:view_ledger'
-  | 'finance:reconcile'
-  | 'ai:chat'
-  | 'ai:execute_low_risk'
-  | 'ai:confirm_consequential';
-
-export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
-  SUPER_ADMIN: ['all:manage'],
-  OPERATIONS_MANAGER: [
-    'booking:read',
-    'booking:create',
-    'booking:cancel',
-    'booking:modify',
-    'trip:manage',
-    'refund:request',
-    'pricing:view',
-    'ai:chat',
-    'ai:execute_low_risk',
-  ],
-  FINANCE_MANAGER: [
-    'booking:read',
-    'refund:request',
-    'refund:authorize',
-    'pricing:view',
-    'pricing:mutate',
-    'settlement:manage',
-    'finance:view_ledger',
-    'finance:reconcile',
-    'ai:chat',
-    'ai:execute_low_risk',
-  ],
-  CRM_AGENT: [
-    'booking:read',
-    'booking:create',
-    'trip:manage',
-    'refund:request',
-    'ai:chat',
-    'ai:execute_low_risk',
-  ],
-  VENDOR_ADMIN: [
-    'booking:read',
-    'pricing:view',
-    'pricing:mutate',
-    'vendor:manage',
-    'settlement:manage',
-  ],
-  PARTNER_AGENT: [
-    'booking:read',
-    'booking:create',
-    'pricing:view',
-  ],
-  CONSUMER: [
-    'booking:read',
-    'booking:create',
-    'trip:manage',
-    'refund:request',
-  ],
-};
+export type Permission = string;
 
 export interface AuthContext {
   userId: string;
   email: string;
   fullName: string;
   role: Role;
-  organizationId?: string;
+  roles?: string[];
+  organizationId?: string | null;
+  workspaceId?: string | null;
+  teamIds?: string[];
+  vendorId?: string | null;
   isSuperAdmin: boolean;
+  supportSession?: {
+    active: boolean;
+    impersonatedByUserId: string;
+    reason: string;
+    expiresAt: string;
+  };
 }
 
 export const SUPER_ADMIN_PRINCIPAL: AuthContext = {
   userId: 'usr_super_admin_amal',
   email: 'amal.babu@travelplanet.com',
   fullName: 'Amal Babu',
-  role: 'SUPER_ADMIN',
+  role: 'PLATFORM_SUPER_ADMIN',
+  roles: ['PLATFORM_SUPER_ADMIN'],
   organizationId: 'org_tp_hq',
+  workspaceId: 'ws_hq_main',
   isSuperAdmin: true,
 };
 
-export function hasPermission(role: Role, permission: Permission): boolean {
-  if (role === 'SUPER_ADMIN') return true;
-  const permissions = ROLE_PERMISSIONS[role] || [];
-  return permissions.includes(permission) || permissions.includes('all:manage');
+/**
+ * Backwards compatible hasPermission checker
+ */
+export function hasPermission(roleOrUser: Role | AuthUser, permission: string): boolean {
+  if (typeof roleOrUser === 'string') {
+    const role = roleOrUser;
+    if (role === 'SUPER_ADMIN' || role === 'PLATFORM_SUPER_ADMIN') return true;
+
+    // Check mapping
+    const normalizedRole = role === 'CRM_AGENT' ? 'TRAVEL_AGENT'
+      : role === 'PARTNER_AGENT' ? 'PARTNER'
+      : role === 'CONSUMER' ? 'CUSTOMER'
+      : role;
+
+    const roleDef = SYSTEM_ROLES[normalizedRole];
+    if (!roleDef) return false;
+
+    // Handle legacy colon format mapping (e.g. 'booking:cancel' -> 'bookings.cancel')
+    const normalizedPermission = permission.replace(':', '.');
+    return roleDef.permissions.includes('*') ||
+      roleDef.permissions.includes(permission) ||
+      roleDef.permissions.includes(normalizedPermission);
+  }
+
+  return AuthorizationEngine.hasPermission(roleOrUser, permission);
 }
 
-export function authorizeAction(context: AuthContext, permission: Permission): void {
-  if (!hasPermission(context.role, permission)) {
-    throw new Error(`Unauthorized: User ${context.email} (${context.role}) lacks permission ${permission}`);
+/**
+ * Authorize action with exception throw
+ */
+export function authorizeAction(
+  context: AuthContext,
+  permission: string,
+  resource?: ResourceScopeTarget
+): void {
+  const authUser: AuthUser = {
+    id: context.userId,
+    email: context.email,
+    fullName: context.fullName,
+    organizationId: context.organizationId,
+    workspaceId: context.workspaceId,
+    teamIds: context.teamIds,
+    vendorId: context.vendorId,
+    roles: context.roles || [context.role],
+    supportSession: context.supportSession,
+  };
+
+  const evalResult = AuthorizationEngine.canPerform(authUser, permission, resource);
+  if (!evalResult.authorized) {
+    throw new Error(evalResult.reason || `Unauthorized: Access denied for permission '${permission}'`);
   }
 }
 
+/**
+ * Singleton RbacService
+ */
 export class RbacService {
   private static instance: RbacService;
 
@@ -132,10 +148,22 @@ export class RbacService {
   }
 
   public hasPermission(role: string, permission: string): boolean {
-    return hasPermission(role as Role, permission as Permission);
+    return hasPermission(role as Role, permission);
   }
 
-  public authorizeAction(context: AuthContext, permission: Permission): void {
-    authorizeAction(context, permission);
+  public canPerform(user: AuthUser, permission: string, resource?: ResourceScopeTarget) {
+    return AuthorizationEngine.canPerform(user, permission, resource);
+  }
+
+  public getDataScope(user: AuthUser, resourceType?: string): DataScope {
+    return AuthorizationEngine.getDataScope(user, resourceType);
+  }
+
+  public getEffectivePermissions(user: AuthUser) {
+    return AuthorizationEngine.getEffectivePermissions(user);
+  }
+
+  public authorizeAction(context: AuthContext, permission: string, resource?: ResourceScopeTarget): void {
+    authorizeAction(context, permission, resource);
   }
 }

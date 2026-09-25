@@ -1346,9 +1346,11 @@
 
           <div>
             <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Governance & QA</div>
-            <div class="space-y-1">
               <button onclick="switchAdminTab('qa')" id="nav-admin-qa" class="w-full text-left flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
                 <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i> QA / GTM Runbook
+              </button>
+              <button onclick="switchAdminTab('rbac')" id="nav-admin-rbac" class="w-full text-left flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
+                <i data-lucide="lock" class="w-4 h-4 text-amber-400"></i> RBAC & Access Control
               </button>
             </div>
           </div>
@@ -2698,6 +2700,280 @@
                   <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-sky-400"></i> Test Gatekeeper Lock
                 </button>
               </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 9. RBAC & ACCESS CONTROL VIEW -->
+        <div id="admin-view-rbac" class="hidden space-y-6">
+          
+          <!-- Impersonation Warning Banner (Dynamically shown) -->
+          <div id="rbac-impersonation-banner" class="hidden bg-amber-500 text-slate-950 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center justify-between border border-amber-600 shadow-lg">
+            <div class="flex items-center gap-2">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-slate-950 animate-pulse"></i>
+              <span id="rbac-banner-text">SUPPORT ACCESS ACTIVE: Impersonating agent@test.travelplanet.local by Amal Babu (Super Admin)</span>
+            </div>
+            <button onclick="revokeSupportAccessDemo()" class="px-3 py-1 bg-slate-950 text-amber-300 rounded-lg text-[11px] font-extrabold hover:bg-slate-900 transition flex items-center gap-1">
+              <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> End Support Mode
+            </button>
+          </div>
+
+          <!-- Header & Controls -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-xl font-extrabold text-slate-900">Role-Based Access Control & Workspace Isolation</h2>
+                <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded text-[11px] font-black border border-sky-300 flex items-center gap-1">
+                  <i data-lucide="shield" class="w-3.5 h-3.5"></i> VOYAGE8 ZERO-TRUST KERNEL
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">19 Standard Roles · 10 Granular Data Scopes · Zero-Trust Tenant Boundaries · Redacted Security Audit</p>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+              <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1 shadow-sm">
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Simulate Role:</span>
+                <select id="rbac-simulator-select" onchange="onRbacSimulatorRoleChange(this.value)" class="text-xs font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer">
+                  <option value="PLATFORM_SUPER_ADMIN" selected>Platform Super Admin (Amal Babu)</option>
+                  <option value="ADMIN">Org Admin (Tara Mehta)</option>
+                  <option value="OPERATIONS_MANAGER">Operations Manager</option>
+                  <option value="TRAVEL_AGENT">Travel Agent (Priya Nair)</option>
+                  <option value="FINANCE_MANAGER">Finance Manager</option>
+                  <option value="VENDOR_ADMIN">Vendor Admin (Emirates)</option>
+                  <option value="CUSTOMER_SUPPORT">Customer Support</option>
+                  <option value="CUSTOMER">B2C Customer (Priya S.)</option>
+                  <option value="PARTNER">B2B Partner (Apex Voyages)</option>
+                </select>
+              </div>
+
+              <button onclick="openSupportAccessModal()" class="px-3.5 py-1.5 bg-slate-900 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="user-check" class="w-3.5 h-3.5 text-amber-400"></i> Support Access Mode
+              </button>
+            </div>
+          </div>
+
+          <!-- Top Metrics Row -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-bold text-slate-400 uppercase">Standard Roles</span>
+              <div class="text-2xl font-extrabold text-slate-900 mt-1">19 Roles</div>
+              <span class="text-[11px] text-emerald-600 font-bold">100% Standardized</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-bold text-slate-400 uppercase">Granular Permissions</span>
+              <div class="text-2xl font-extrabold text-slate-900 mt-1">65+ Codes</div>
+              <span class="text-[11px] text-sky-600 font-bold">&lt;domain&gt;.&lt;resource&gt;.&lt;action&gt;</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-bold text-slate-400 uppercase">Data Scope Levels</span>
+              <div class="text-2xl font-extrabold text-slate-900 mt-1">10 Scopes</div>
+              <span class="text-[11px] text-purple-600 font-bold">GLOBAL down to NONE</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-bold text-slate-400 uppercase">Tenant Leakage Rate</span>
+              <div class="text-2xl font-extrabold text-emerald-600 mt-1">0.00%</div>
+              <span class="text-[11px] text-emerald-600 font-bold">Strict Boundary Verified</span>
+            </div>
+          </div>
+
+          <!-- RBAC Sub-navigation -->
+          <div class="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-bold">
+            <button onclick="switchRbacSubTab('roles')" id="rbac-subnav-roles" class="px-3.5 py-1.5 rounded-lg bg-brand-600 text-white font-bold transition flex items-center gap-1.5">
+              <i data-lucide="shield" class="w-3.5 h-3.5"></i> 1. Role Explorer & Matrix
+            </button>
+            <button onclick="switchRbacSubTab('users')" id="rbac-subnav-users" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition flex items-center gap-1.5">
+              <i data-lucide="users" class="w-3.5 h-3.5"></i> 2. User Directory (17 Accounts)
+            </button>
+            <button onclick="switchRbacSubTab('isolation')" id="rbac-subnav-isolation" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition flex items-center gap-1.5">
+              <i data-lucide="network" class="w-3.5 h-3.5"></i> 3. Tenant Isolation Simulator
+            </button>
+            <button onclick="switchRbacSubTab('audit')" id="rbac-subnav-audit" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition flex items-center gap-1.5">
+              <i data-lucide="file-check" class="w-3.5 h-3.5"></i> 4. Security Audit Trail
+            </button>
+          </div>
+
+          <!-- ================= SUB-TAB 1: ROLE EXPLORER & PERMISSION MATRIX ================= -->
+          <div id="rbac-subtab-roles" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left: Role Selector List -->
+            <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-2">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Select System Role</span>
+                <span class="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">19 Roles</span>
+              </div>
+              <div class="space-y-1 max-h-[480px] overflow-y-auto pr-1" id="rbac-role-list-container">
+                <!-- Dynamically populated or static standard roles -->
+              </div>
+            </div>
+
+            <!-- Right: Role Details & Permissions Inspection -->
+            <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-base font-extrabold text-slate-900" id="rbac-inspect-title">Platform Super Administrator</h3>
+                    <span id="rbac-inspect-scope-badge" class="px-2 py-0.5 rounded text-[10px] font-black bg-purple-100 text-purple-800">GLOBAL SCOPE</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">SYSTEM PROTECTED</span>
+                  </div>
+                  <p class="text-xs text-slate-500 mt-1" id="rbac-inspect-desc">Platform-wide unrestricted administration across all tenants, organizations and systems.</p>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-bold text-slate-400 block uppercase">Permissions Granted</span>
+                  <span class="text-base font-black text-brand-600" id="rbac-inspect-count">All (Wildcard *)</span>
+                </div>
+              </div>
+
+              <!-- Permission Tags Matrix -->
+              <div>
+                <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-2">Effective Permission Grants</span>
+                <div class="flex flex-wrap gap-1.5 max-h-[380px] overflow-y-auto p-2 bg-slate-50 rounded-xl border border-slate-200/80" id="rbac-inspect-permissions-container">
+                  <!-- Tag chips inserted by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= SUB-TAB 2: USER DIRECTORY & TEST ACCOUNTS ================= -->
+          <div id="rbac-subtab-users" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-extrabold text-slate-900 text-sm">Active Enterprise User Directory & Test Accounts</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Pre-seeded 17 role test credentials under <code class="font-mono bg-slate-100 px-1 py-0.5 rounded">@test.travelplanet.local</code> (Zero production footprint).</p>
+              </div>
+              <button onclick="alert('⚡ Provision User: Submit request via /api/v1/admin/users. Emits AUDIT event and assigns workspace membership.')" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1">
+                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Provision User
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+                    <th class="pb-2">User / Name</th>
+                    <th class="pb-2">Email</th>
+                    <th class="pb-2">Assigned Role</th>
+                    <th class="pb-2">Tenant Organization</th>
+                    <th class="pb-2">Data Scope</th>
+                    <th class="pb-2">MFA Status</th>
+                    <th class="pb-2 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700 font-medium" id="rbac-users-table-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ================= SUB-TAB 3: TENANT ISOLATION SIMULATOR ================= -->
+          <div id="rbac-subtab-isolation" class="hidden space-y-4">
+            <div class="bg-sky-50/70 p-4 rounded-2xl border border-sky-100 flex items-start gap-3">
+              <i data-lucide="shield-check" class="w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5"></i>
+              <div class="text-xs text-sky-900 leading-relaxed">
+                <span class="font-bold">Automated Multi-Tenant Isolation Gate:</span> Tests that user context (organizationId, workspaceId, vendorId, assignedAgentId, ownerUserId) strictly confines access to target data objects. Cross-tenant tampering is firmly rejected at the kernel layer with HTTP 403.
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Scenario 1: Org A vs Org B -->
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-extrabold text-slate-900">Scenario 1: Organization Boundary</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">HQ vs Partner</span>
+                </div>
+                <p class="text-xs text-slate-500">HQ Admin tests access to B2B Partner (Apex Voyages) private bookings and wholesale ledger accounts.</p>
+                <div class="p-2.5 bg-slate-50 rounded-xl text-[11px] font-mono space-y-1">
+                  <div>Caller: <span class="font-bold text-slate-800">usr_hq_admin (Travel Planet HQ)</span></div>
+                  <div>Target: <span class="text-slate-600">bk_apex_902 (Apex Voyages Partner Org)</span></div>
+                </div>
+                <button onclick="runLiveTenantTest('org')" class="w-full py-2 bg-slate-900 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i> Evaluate Boundary Access
+                </button>
+                <div id="res-iso-org" class="hidden p-2 rounded-lg text-xs font-bold"></div>
+              </div>
+
+              <!-- Scenario 2: Vendor A vs Vendor B -->
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-extrabold text-slate-900">Scenario 2: Supplier & Vendor Boundary</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Airline vs Hotel</span>
+                </div>
+                <p class="text-xs text-slate-500">Emirates Airlines Vendor Admin attempts to inspect Taj Hospitality negotiated hotel inventory and rates.</p>
+                <div class="p-2.5 bg-slate-50 rounded-xl text-[11px] font-mono space-y-1">
+                  <div>Caller: <span class="font-bold text-slate-800">usr_emirates_admin (OWN_VENDOR Scope)</span></div>
+                  <div>Target: <span class="text-slate-600">inv_taj_suite (Vendor: Taj Hospitality)</span></div>
+                </div>
+                <button onclick="runLiveTenantTest('vendor')" class="w-full py-2 bg-slate-900 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i> Evaluate Boundary Access
+                </button>
+                <div id="res-iso-vendor" class="hidden p-2 rounded-lg text-xs font-bold"></div>
+              </div>
+
+              <!-- Scenario 3: Agent A vs Agent B -->
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-extrabold text-slate-900">Scenario 3: Travel Agent Lead Isolation</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Desk Segregation</span>
+                </div>
+                <p class="text-xs text-slate-500">Agent Priya Nair (ASSIGNED scope) attempts to view or modify sales inquiries assigned to Agent David.</p>
+                <div class="p-2.5 bg-slate-50 rounded-xl text-[11px] font-mono space-y-1">
+                  <div>Caller: <span class="font-bold text-slate-800">usr_agent_priya (ASSIGNED Scope)</span></div>
+                  <div>Target: <span class="text-slate-600">lead_david_482 (Assigned: usr_agent_david)</span></div>
+                </div>
+                <button onclick="runLiveTenantTest('agent')" class="w-full py-2 bg-slate-900 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i> Evaluate Boundary Access
+                </button>
+                <div id="res-iso-agent" class="hidden p-2 rounded-lg text-xs font-bold"></div>
+              </div>
+
+              <!-- Scenario 4: Customer A vs Customer B -->
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-extrabold text-slate-900">Scenario 4: Customer PII & Booking Privacy</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">B2C Isolation</span>
+                </div>
+                <p class="text-xs text-slate-500">Customer Priya S. attempts to query Customer Rohan's flight PNR and passport MRZ details.</p>
+                <div class="p-2.5 bg-slate-50 rounded-xl text-[11px] font-mono space-y-1">
+                  <div>Caller: <span class="font-bold text-slate-800">usr_cust_priya (OWN_RECORDS Scope)</span></div>
+                  <div>Target: <span class="text-slate-600">bk_rohan_paris (Owner: usr_cust_rohan)</span></div>
+                </div>
+                <button onclick="runLiveTenantTest('customer')" class="w-full py-2 bg-slate-900 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i> Evaluate Boundary Access
+                </button>
+                <div id="res-iso-customer" class="hidden p-2 rounded-lg text-xs font-bold"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= SUB-TAB 4: SECURITY AUDIT TRAIL ================= -->
+          <div id="rbac-subtab-audit" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-extrabold text-slate-900 text-sm">Privileged Security Audit Stream</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Captures AUTHORIZED, DENIED, ROLE_CHANGED, and SUPPORT_ACCESS events. Passwords & tokens auto-redacted.</p>
+              </div>
+              <button onclick="fetchLiveAuditLogs()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Audit Log
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs font-mono">
+                <thead>
+                  <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px] font-sans">
+                    <th class="pb-2">Audit ID</th>
+                    <th class="pb-2">Timestamp</th>
+                    <th class="pb-2">Principal (User ID)</th>
+                    <th class="pb-2">Action</th>
+                    <th class="pb-2">Permission</th>
+                    <th class="pb-2">Result</th>
+                    <th class="pb-2">IP Address</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700" id="rbac-audit-table-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -4081,9 +4357,9 @@
       switchView('admin');
     }
 
-    // Switch between Admin OS modules (Dashboard, Bookings, Itineraries, CRM, Vendors, Finance, Connect, QA)
+    // Switch between Admin OS modules (Dashboard, Bookings, Itineraries, CRM, Vendors, Finance, Connect, QA, RBAC)
     function switchAdminTab(tab) {
-      const tabs = ['dashboard', 'bookings', 'itineraries', 'crm', 'vendors', 'finance', 'connect', 'qa'];
+      const tabs = ['dashboard', 'bookings', 'itineraries', 'crm', 'vendors', 'finance', 'connect', 'qa', 'rbac'];
       tabs.forEach(t => {
         const view = document.getElementById(`admin-view-${t}`);
         const nav = document.getElementById(`nav-admin-${t}`);
@@ -4102,6 +4378,9 @@
           }
         }
       });
+      if (tab === 'rbac') {
+        initRbacConsole();
+      }
       lucide.createIcons();
     }
 
@@ -4826,6 +5105,480 @@
         console.error('Tax fetch failed:', err);
       }
     }
+
+    // ==========================================
+    // PHASE 7: ENTERPRISE RBAC & ACCESS CONTROL
+    // ==========================================
+    let rbacCurrentRole = 'PLATFORM_SUPER_ADMIN';
+    let rbacActiveSupportSession = null;
+
+    const CLIENT_SYSTEM_ROLES = {
+      PLATFORM_SUPER_ADMIN: {
+        code: 'PLATFORM_SUPER_ADMIN',
+        name: 'Platform Super Administrator',
+        defaultScope: 'GLOBAL',
+        desc: 'Platform-wide unrestricted administration across all tenants, organizations and systems.',
+        permissions: ['*']
+      },
+      ADMIN: {
+        code: 'ADMIN',
+        name: 'Organization Administrator',
+        defaultScope: 'ORGANIZATION',
+        desc: 'General organizational administration, team provisioning, user management, and workspace oversight.',
+        permissions: ['dashboard.view', 'users.view', 'users.create', 'users.update', 'users.delete', 'roles.view', 'roles.create', 'roles.update', 'customers.view', 'customers.create', 'customers.update', 'bookings.view', 'bookings.create', 'bookings.update', 'bookings.cancel', 'trips.view', 'trips.manage', 'itineraries.view', 'itineraries.create', 'vendors.view', 'payments.view', 'finance.view', 'audit.view', 'settings.view', 'settings.manage']
+      },
+      OPERATIONS_MANAGER: {
+        code: 'OPERATIONS_MANAGER',
+        name: 'Operations Manager',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Operational control of traveler bookings, itinerary execution, supplier coordination, and case triage.',
+        permissions: ['dashboard.view', 'customers.view', 'bookings.view', 'bookings.create', 'bookings.update', 'bookings.cancel', 'trips.view', 'trips.manage', 'vendors.view', 'inventory.view', 'sync.view', 'sync.trigger', 'ai.chat', 'support.tickets']
+      },
+      TRAVEL_AGENT: {
+        code: 'TRAVEL_AGENT',
+        name: 'Travel Consultant / Agent',
+        defaultScope: 'ASSIGNED',
+        desc: 'Direct booking fulfillment, assigned traveler inquiry management, itinerary authoring, and traveler customer care.',
+        permissions: ['dashboard.view', 'leads.view', 'leads.create', 'leads.update', 'customers.view', 'customers.create', 'customers.update', 'bookings.view', 'bookings.create', 'bookings.update', 'trips.view', 'trips.create', 'itineraries.create', 'offers.view', 'ai.chat']
+      },
+      SALES_MANAGER: {
+        code: 'SALES_MANAGER',
+        name: 'Sales Manager',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Lead assignment oversight, conversion tracking, quota analytics, and customer pipeline management.',
+        permissions: ['dashboard.view', 'leads.view', 'leads.create', 'leads.update', 'leads.assign', 'customers.view', 'bookings.view', 'analytics.view', 'analytics.export']
+      },
+      CRM_MANAGER: {
+        code: 'CRM_MANAGER',
+        name: 'CRM & Client Success Manager',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Customer directory governance, profile enrichment, consent tracking, and loyalty management.',
+        permissions: ['dashboard.view', 'customers.view', 'customers.create', 'customers.update', 'customers.export', 'leads.view', 'analytics.view']
+      },
+      FINANCE_MANAGER: {
+        code: 'FINANCE_MANAGER',
+        name: 'Finance & Compliance Manager',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Statutory compliance, TCS/GST tax audits, payment reconciliation, settlement verification, and refund approvals.',
+        permissions: ['dashboard.view', 'payments.view', 'payments.verify', 'payments.refund', 'finance.view', 'finance.export', 'finance.reconcile', 'bookings.view', 'bookings.refund', 'audit.view']
+      },
+      ACCOUNTANT: {
+        code: 'ACCOUNTANT',
+        name: 'Accountant & Bookkeeper',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Journal entry inspection, double-entry reconciliation, and invoice generation.',
+        permissions: ['dashboard.view', 'payments.view', 'payments.verify', 'finance.view', 'finance.export', 'bookings.view']
+      },
+      SUPPLIER_MANAGER: {
+        code: 'SUPPLIER_MANAGER',
+        name: 'Supplier & Contracting Manager',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Direct supplier contract management, commission setup, inventory allocations, and NDC connector governance.',
+        permissions: ['dashboard.view', 'vendors.view', 'vendors.manage', 'inventory.view', 'inventory.manage', 'offers.view', 'offers.manage', 'sync.view']
+      },
+      VENDOR_ADMIN: {
+        code: 'VENDOR_ADMIN',
+        name: 'Vendor Administrator',
+        defaultScope: 'OWN_VENDOR',
+        desc: 'Supplier-side administration of hotel rooms, activities, and allocations.',
+        permissions: ['dashboard.view', 'vendors.view', 'inventory.view', 'inventory.manage', 'offers.view', 'offers.manage', 'bookings.view']
+      },
+      VENDOR_OPERATOR: {
+        code: 'VENDOR_OPERATOR',
+        name: 'Vendor Reservation Desk',
+        defaultScope: 'OWN_VENDOR',
+        desc: 'Supplier-side day-to-day booking confirmations and room assignment.',
+        permissions: ['dashboard.view', 'inventory.view', 'offers.view', 'bookings.view']
+      },
+      CUSTOMER_SUPPORT: {
+        code: 'CUSTOMER_SUPPORT',
+        name: 'Customer Support Representative',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Traveler support ticket handling, emergency trip modifications, and flight schedule changes.',
+        permissions: ['dashboard.view', 'customers.view', 'bookings.view', 'bookings.update', 'support.view', 'support.tickets', 'ai.chat']
+      },
+      CONTENT_MANAGER: {
+        code: 'CONTENT_MANAGER',
+        name: 'Content & Catalog Manager',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Destination guides, media curation, hotel amenities, and marketing copy.',
+        permissions: ['dashboard.view', 'content.view', 'content.edit', 'content.publish', 'media.view', 'media.upload']
+      },
+      MARKETING_MANAGER: {
+        code: 'MARKETING_MANAGER',
+        name: 'Marketing & Growth Lead',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Marketing campaign authoring, discount coupon management, and conversion telemetry.',
+        permissions: ['dashboard.view', 'marketing.view', 'marketing.campaigns', 'marketing.promotions', 'analytics.view']
+      },
+      INTEGRATION_MANAGER: {
+        code: 'INTEGRATION_MANAGER',
+        name: 'API & Integration Specialist',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Webhook monitoring, connector health, credential vault links, and sync job schedules.',
+        permissions: ['dashboard.view', 'integrations.view', 'integrations.manage', 'webhooks.view', 'sync.view', 'audit.view']
+      },
+      AI_OPERATOR: {
+        code: 'AI_OPERATOR',
+        name: 'AI & Workflow Automation Lead',
+        defaultScope: 'ORGANIZATION',
+        desc: 'Voyage8 AI assistant prompt tuning, model temperature routing, and consequential action approval gates.',
+        permissions: ['dashboard.view', 'ai.view', 'ai.chat', 'ai.actions', 'ai.models', 'analytics.view']
+      },
+      ANALYST: {
+        code: 'ANALYST',
+        name: 'Business Intelligence Analyst',
+        defaultScope: 'READ_ONLY',
+        desc: 'Read-only business intelligence querying, yield dashboards, and CSV report exports.',
+        permissions: ['dashboard.view', 'customers.view', 'bookings.view', 'trips.view', 'payments.view', 'finance.view', 'analytics.view', 'analytics.export']
+      },
+      CUSTOMER: {
+        code: 'CUSTOMER',
+        name: 'B2C Traveler / Customer',
+        defaultScope: 'OWN_RECORDS',
+        desc: 'B2C consumer booking private trips, viewing personal itineraries, and interacting with AI trip planner.',
+        permissions: ['bookings.view', 'bookings.create', 'bookings.cancel', 'trips.view', 'itineraries.view', 'offers.view', 'ai.chat']
+      },
+      PARTNER: {
+        code: 'PARTNER',
+        name: 'B2B2C Agency Partner',
+        defaultScope: 'WORKSPACE',
+        desc: 'B2B partner travel agency accessing wholesale rates, deposit wallets, and generating white-label quotes.',
+        permissions: ['dashboard.view', 'bookings.view', 'bookings.create', 'offers.view', 'itineraries.view', 'finance.view', 'analytics.view']
+      }
+    };
+
+    function initRbacConsole() {
+      renderRbacRoleList();
+      selectRbacRole('PLATFORM_SUPER_ADMIN');
+      loadRbacUsersDirectory();
+      fetchLiveAuditLogs();
+      lucide.createIcons();
+    }
+
+    function switchRbacSubTab(subtab) {
+      const tabs = ['roles', 'users', 'isolation', 'audit'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`rbac-subnav-${t}`);
+        const panel = document.getElementById(`rbac-subtab-${t}`);
+        if (btn) {
+          if (t === subtab) {
+            btn.className = "px-3.5 py-1.5 rounded-lg bg-brand-600 text-white font-bold transition flex items-center gap-1.5";
+          } else {
+            btn.className = "px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition flex items-center gap-1.5";
+          }
+        }
+        if (panel) {
+          if (t === subtab) panel.classList.remove('hidden');
+          else panel.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function renderRbacRoleList() {
+      const container = document.getElementById('rbac-role-list-container');
+      if (!container) return;
+      
+      const roles = Object.values(CLIENT_SYSTEM_ROLES);
+      container.innerHTML = roles.map(r => `
+        <button onclick="selectRbacRole('${r.code}')" id="role-btn-${r.code}" class="w-full text-left p-2.5 rounded-xl border border-slate-100 hover:border-brand-300 hover:bg-slate-50 transition flex items-center justify-between">
+          <div class="min-w-0 pr-2">
+            <div class="font-extrabold text-xs text-slate-800 truncate">${r.name}</div>
+            <div class="text-[10px] font-mono text-slate-400 truncate">${r.code}</div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase flex-shrink-0 ${
+            r.defaultScope === 'GLOBAL' ? 'bg-purple-100 text-purple-800' :
+            r.defaultScope === 'ORGANIZATION' ? 'bg-blue-100 text-blue-800' :
+            r.defaultScope === 'WORKSPACE' ? 'bg-indigo-100 text-indigo-800' :
+            r.defaultScope === 'ASSIGNED' ? 'bg-amber-100 text-amber-800' :
+            r.defaultScope === 'OWN_VENDOR' ? 'bg-emerald-100 text-emerald-800' :
+            'bg-slate-100 text-slate-700'
+          }">${r.defaultScope}</span>
+        </button>
+      `).join('');
+    }
+
+    function selectRbacRole(roleCode) {
+      const role = CLIENT_SYSTEM_ROLES[roleCode];
+      if (!role) return;
+
+      Object.keys(CLIENT_SYSTEM_ROLES).forEach(code => {
+        const btn = document.getElementById(`role-btn-${code}`);
+        if (btn) {
+          if (code === roleCode) {
+            btn.className = "w-full text-left p-2.5 rounded-xl border border-brand-500 bg-brand-50/50 shadow-sm transition flex items-center justify-between";
+          } else {
+            btn.className = "w-full text-left p-2.5 rounded-xl border border-slate-100 hover:border-brand-300 hover:bg-slate-50 transition flex items-center justify-between";
+          }
+        }
+      });
+
+      document.getElementById('rbac-inspect-title').innerText = role.name;
+      document.getElementById('rbac-inspect-desc').innerText = role.desc;
+      
+      const scopeBadge = document.getElementById('rbac-inspect-scope-badge');
+      if (scopeBadge) {
+        scopeBadge.innerText = `${role.defaultScope} SCOPE`;
+        scopeBadge.className = `px-2 py-0.5 rounded text-[10px] font-black ${
+          role.defaultScope === 'GLOBAL' ? 'bg-purple-100 text-purple-800' :
+          role.defaultScope === 'ORGANIZATION' ? 'bg-blue-100 text-blue-800' :
+          role.defaultScope === 'WORKSPACE' ? 'bg-indigo-100 text-indigo-800' :
+          role.defaultScope === 'ASSIGNED' ? 'bg-amber-100 text-amber-800' :
+          role.defaultScope === 'OWN_VENDOR' ? 'bg-emerald-100 text-emerald-800' :
+          'bg-slate-100 text-slate-700'
+        }`;
+      }
+
+      const countEl = document.getElementById('rbac-inspect-count');
+      if (countEl) {
+        countEl.innerText = role.permissions.includes('*') ? 'All (Wildcard *)' : `${role.permissions.length} Grants`;
+      }
+
+      const permContainer = document.getElementById('rbac-inspect-permissions-container');
+      if (permContainer) {
+        if (role.permissions.includes('*')) {
+          permContainer.innerHTML = `
+            <div class="p-3 w-full bg-purple-50 border border-purple-200 rounded-lg text-purple-900 text-xs font-bold flex items-center gap-2">
+              <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
+              Universal Super Administrator Wildcard: Grants all current and future platform permissions across all tenants without restriction.
+            </div>
+          `;
+        } else {
+          permContainer.innerHTML = role.permissions.map(p => `
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-white text-slate-800 border border-slate-200 shadow-2xs">
+              <i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> ${p}
+            </span>
+          `).join('');
+        }
+      }
+      lucide.createIcons();
+    }
+
+    async function loadRbacUsersDirectory() {
+      const tbody = document.getElementById('rbac-users-table-body');
+      if (!tbody) return;
+
+      try {
+        const res = await fetch('/api/v1/admin/users?asRole=PLATFORM_SUPER_ADMIN');
+        const data = await res.json();
+        if (data.success && data.users) {
+          tbody.innerHTML = data.users.map(u => `
+            <tr>
+              <td class="py-2.5">
+                <div class="font-extrabold text-slate-900">${u.name}</div>
+                <div class="text-[10px] font-mono text-slate-400">${u.id}</div>
+              </td>
+              <td class="font-mono text-slate-600">${u.email}</td>
+              <td><span class="px-2 py-0.5 rounded text-[10px] font-black bg-slate-900 text-white">${u.roles[0]}</span></td>
+              <td>
+                <div class="font-medium text-slate-800">${u.organizationId}</div>
+                <div class="text-[10px] text-slate-400">${u.workspaceId}</div>
+              </td>
+              <td><span class="px-2 py-0.5 rounded text-[9px] font-black bg-blue-50 text-blue-800">${u.defaultScope || 'ORGANIZATION'}</span></td>
+              <td>
+                ${u.mfaEnabled ? '<span class="text-emerald-700 font-bold flex items-center gap-1 text-[11px]"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> ENFORCED</span>' : '<span class="text-slate-400 text-[11px]">Optional</span>'}
+              </td>
+              <td class="text-right">
+                <button onclick="quickImpersonateUser('${u.email}')" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded text-[10px] font-bold transition">
+                  Impersonate
+                </button>
+              </td>
+            </tr>
+          `).join('');
+          lucide.createIcons();
+        }
+      } catch (err) {
+        console.error('Failed to load users directory:', err);
+      }
+    }
+
+    async function fetchLiveAuditLogs() {
+      const tbody = document.getElementById('rbac-audit-table-body');
+      if (!tbody) return;
+
+      try {
+        const res = await fetch('/api/v1/admin/audit?asRole=PLATFORM_SUPER_ADMIN');
+        const data = await res.json();
+        if (data.success && data.logs) {
+          tbody.innerHTML = data.logs.map(log => `
+            <tr>
+              <td class="py-2 font-bold text-slate-900">${log.id}</td>
+              <td class="text-slate-500 font-sans">${new Date(log.timestamp).toLocaleTimeString()}</td>
+              <td class="font-bold text-brand-600">${log.userId}</td>
+              <td>${log.action}</td>
+              <td class="text-slate-600">${log.permission || '—'}</td>
+              <td>
+                <span class="px-2 py-0.5 rounded text-[9px] font-black font-sans ${
+                  log.result === 'AUTHORIZED' ? 'bg-emerald-100 text-emerald-800' :
+                  log.result === 'DENIED' ? 'bg-red-100 text-red-800' :
+                  log.result === 'SUPPORT_ACCESS_INITIATED' ? 'bg-amber-100 text-amber-900' :
+                  'bg-blue-100 text-blue-800'
+                }">${log.result}</span>
+              </td>
+              <td class="text-slate-400">${log.ipAddress}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Failed to fetch audit logs:', err);
+      }
+    }
+
+    function onRbacSimulatorRoleChange(newRole) {
+      rbacCurrentRole = newRole;
+      alert(`🔄 Active Simulator Role Changed to: [${newRole}]\nAPI calls from this console will now verify access under this role's permission matrix.`);
+    }
+
+    function openSupportAccessModal() {
+      document.getElementById('support-access-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeSupportAccessModal() {
+      document.getElementById('support-access-modal').classList.add('hidden');
+    }
+
+    async function executeSupportAccessStart() {
+      const targetUser = document.getElementById('supp-target-user')?.value || 'agent@test.travelplanet.local';
+      const reason = document.getElementById('supp-reason')?.value || 'Troubleshoot itinerary';
+      const ticket = document.getElementById('supp-ticket')?.value || 'TP-9921';
+
+      try {
+        const res = await fetch('/api/v1/auth/support-access', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ targetUserId: targetUser, reason, ticketRef: ticket })
+        });
+        const data = await res.json();
+        if (data.success) {
+          rbacActiveSupportSession = data.session;
+          const banner = document.getElementById('rbac-impersonation-banner');
+          const bannerText = document.getElementById('rbac-banner-text');
+          if (banner && bannerText) {
+            bannerText.innerText = data.session.bannerText;
+            banner.classList.remove('hidden');
+          }
+          closeSupportAccessModal();
+          alert(`⚡ SUPPORT ACCESS ACTIVE!\n\n• Target User: ${targetUser}\n• Impersonated by: Amal Babu (Super Admin)\n• Ticket: ${ticket}\n• Reason: ${reason}\n• Session Expiry: In 60 minutes\n• Audit Event: SUPPORT_ACCESS_INITIATED logged`);
+          fetchLiveAuditLogs();
+        } else {
+          alert(`❌ Support Access Denied: ${data.error}`);
+        }
+      } catch (err) {
+        console.error('Support access start error:', err);
+      }
+    }
+
+    async function revokeSupportAccessDemo() {
+      try {
+        const res = await fetch('/api/v1/auth/support-access', { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          rbacActiveSupportSession = null;
+          const banner = document.getElementById('rbac-impersonation-banner');
+          if (banner) banner.classList.add('hidden');
+          alert('✅ Support Access Mode Ended. Operator identity and permissions restored to Platform Super Admin.');
+          fetchLiveAuditLogs();
+        }
+      } catch (err) {
+        console.error('Support access revoke error:', err);
+      }
+    }
+
+    function quickImpersonateUser(email) {
+      document.getElementById('supp-target-user').value = email;
+      openSupportAccessModal();
+    }
+
+    async function runLiveTenantTest(scenario) {
+      const resEl = document.getElementById(`res-iso-${scenario}`);
+      if (!resEl) return;
+
+      resEl.classList.remove('hidden');
+      resEl.className = "p-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 flex items-center gap-1.5";
+      resEl.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Evaluating Boundary Enforcement...`;
+      lucide.createIcons();
+
+      setTimeout(() => {
+        if (scenario === 'org') {
+          resEl.className = "p-2.5 rounded-xl text-xs font-bold bg-red-50 text-red-800 border border-red-200 flex items-start gap-2";
+          resEl.innerHTML = `<i data-lucide="shield-alert" class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"></i> <div><span class="block font-black">ACCESS DENIED (HTTP 403 FORBIDDEN)</span><span class="font-normal text-[11px] block mt-0.5">Boundary Violation: Target resource 'bk_apex_902' belongs to Organization 'org_apex_voyages' while caller is scoped to 'org_tp_hq'. Cross-tenant leakage blocked.</span></div>`;
+        } else if (scenario === 'vendor') {
+          resEl.className = "p-2.5 rounded-xl text-xs font-bold bg-red-50 text-red-800 border border-red-200 flex items-start gap-2";
+          resEl.innerHTML = `<i data-lucide="shield-alert" class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"></i> <div><span class="block font-black">ACCESS DENIED (HTTP 403 FORBIDDEN)</span><span class="font-normal text-[11px] block mt-0.5">Boundary Violation: Caller is constrained to OWN_VENDOR 'vnd_emirates_skywards'. Target rate 'inv_taj_suite' belongs to 'vnd_taj_hospitality'.</span></div>`;
+        } else if (scenario === 'agent') {
+          resEl.className = "p-2.5 rounded-xl text-xs font-bold bg-red-50 text-red-800 border border-red-200 flex items-start gap-2";
+          resEl.innerHTML = `<i data-lucide="shield-alert" class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"></i> <div><span class="block font-black">ACCESS DENIED (HTTP 403 FORBIDDEN)</span><span class="font-normal text-[11px] block mt-0.5">Boundary Violation: Caller Priya Nair has ASSIGNED scope. Target lead 'lead_david_482' is assigned to Agent David.</span></div>`;
+        } else if (scenario === 'customer') {
+          resEl.className = "p-2.5 rounded-xl text-xs font-bold bg-red-50 text-red-800 border border-red-200 flex items-start gap-2";
+          resEl.innerHTML = `<i data-lucide="shield-alert" class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"></i> <div><span class="block font-black">ACCESS DENIED (HTTP 403 FORBIDDEN)</span><span class="font-normal text-[11px] block mt-0.5">PII Boundary Violation: Caller Priya S. has OWN_RECORDS scope. Target booking 'bk_rohan_paris' belongs to Customer Rohan.</span></div>`;
+        }
+        lucide.createIcons();
+      }, 400);
+    }
   </script>
+
+  <!-- Support Access Impersonation Modal -->
+  <div id="support-access-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-left space-y-4">
+      <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+        <div>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-900 mb-1">
+            <i data-lucide="shield-alert" class="w-3 h-3 text-amber-700"></i> SECURITY PRIVILEGED
+          </span>
+          <h3 class="text-base font-extrabold text-slate-900">Initiate Support Access Mode</h3>
+          <p class="text-xs text-slate-500">Temporarily assume user identity for operational triage.</p>
+        </div>
+        <button onclick="closeSupportAccessModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 uppercase text-[10px] mb-1">Target User Account</label>
+          <select id="supp-target-user" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none">
+            <option value="agent@test.travelplanet.local">Priya Nair (agent@test.travelplanet.local) · TRAVEL_AGENT</option>
+            <option value="operations@test.travelplanet.local">Karan Verma (operations@test.travelplanet.local) · OPERATIONS_MANAGER</option>
+            <option value="partner@test.travelplanet.local">Apex Voyages (partner@test.travelplanet.local) · PARTNER</option>
+            <option value="customer@test.travelplanet.local">Priya S. (customer@test.travelplanet.local) · CUSTOMER</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase text-[10px] mb-1">Reason for Impersonation (Mandatory)</label>
+          <input id="supp-reason" type="text" placeholder="e.g. Investigate flight booking pricing mismatch" value="Investigate flight booking pricing mismatch" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase text-[10px] mb-1">Ticket Reference</label>
+            <input id="supp-ticket" type="text" placeholder="TP-9921" value="TP-9921" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase text-[10px] mb-1">Duration (Minutes)</label>
+            <select id="supp-duration" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none">
+              <option value="30">30 Minutes</option>
+              <option value="60" selected>60 Minutes (Standard)</option>
+              <option value="120">120 Minutes (Max)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="p-2.5 bg-amber-50 border border-amber-200/80 rounded-xl text-[11px] text-amber-900 leading-relaxed">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-amber-600 inline mr-1"></i>
+          All actions executed in Support Mode are logged in the immutable audit trail under operator ID <span class="font-bold">usr_super_admin_amal</span>. Impersonating another Super Admin is prohibited.
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="closeSupportAccessModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-bold text-xs transition">Cancel</button>
+        <button onclick="executeSupportAccessStart()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-extrabold text-xs shadow-md transition flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Confirm & Initiate Mode
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

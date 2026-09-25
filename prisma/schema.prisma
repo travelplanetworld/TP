@@ -17,39 +17,74 @@ datasource db {
 // ==========================================
 
 enum UserRoleType {
-  SUPER_ADMIN
+  PLATFORM_SUPER_ADMIN
+  ADMIN
   OPERATIONS_MANAGER
+  TRAVEL_AGENT
+  SALES_MANAGER
+  CRM_MANAGER
   FINANCE_MANAGER
-  CRM_AGENT
+  ACCOUNTANT
+  SUPPLIER_MANAGER
   VENDOR_ADMIN
+  VENDOR_OPERATOR
+  CUSTOMER_SUPPORT
+  CONTENT_MANAGER
+  MARKETING_MANAGER
+  INTEGRATION_MANAGER
+  AI_OPERATOR
+  ANALYST
+  CUSTOMER
+  PARTNER
+  // Backwards compatibility aliases
+  SUPER_ADMIN
+  CRM_AGENT
   PARTNER_AGENT
   CONSUMER
 }
 
-model User {
-  id             String        @id @default(cuid())
-  email          String        @unique
-  fullName       String
-  phone          String?
-  avatarUrl      String?
-  role           UserRoleType  @default(CONSUMER)
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  isActive       Boolean       @default(true)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+enum DataScopeType {
+  GLOBAL
+  ORGANIZATION
+  WORKSPACE
+  TEAM
+  ASSIGNED
+  OWN_RECORDS
+  OWN_CUSTOMERS
+  OWN_VENDOR
+  READ_ONLY
+  NONE
+}
 
-  travelerProfiles TravelerProfile[]
-  bookings         Booking[]
-  trips            Trip[]
-  leads            Lead[]
-  assignedCases    Case[]            @relation("AssignedAgent")
-  auditLogs        AuditLog[]
-  aiConversations  AIConversation[]
-  teamMemberships  TeamMember[]
+model User {
+  id                   String                @id @default(cuid())
+  email                String                @unique
+  fullName             String
+  phone                String?
+  avatarUrl            String?
+  passwordHash         String?
+  role                 UserRoleType          @default(CUSTOMER)
+  organizationId       String?
+  organization         Organization?         @relation(fields: [organizationId], references: [id])
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  userRoles            UserRole[]
+  workspaceMemberships WorkspaceMembership[]
+  sessions             Session[]
+  travelerProfiles     TravelerProfile[]
+  bookings             Booking[]
+  trips                Trip[]
+  leads                Lead[]
+  assignedCases        Case[]                @relation("AssignedAgent")
+  auditLogs            AuditLog[]
+  aiConversations      AIConversation[]
+  teamMemberships      TeamMember[]
 
   @@index([email])
   @@index([role])
+  @@index([organizationId])
 }
 
 model Organization {
@@ -67,6 +102,8 @@ model Organization {
   workspaces  Workspace[]
   teams       Team[]
   settlements Settlement[]
+  roles       Role[]
+  userRoles   UserRole[]
 }
 
 model Team {
@@ -93,13 +130,120 @@ model TeamMember {
 }
 
 model Workspace {
-  id             String       @id @default(cuid())
+  id             String                @id @default(cuid())
   name           String
-  slug           String       @unique
+  slug           String                @unique
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  organization   Organization          @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  roles          Role[]
+  userRoles      UserRole[]
+  members        WorkspaceMembership[]
+}
+
+model Role {
+  id             String          @id @default(cuid())
+  name           String
+  code           String          @unique
+  description    String?
+  scope          DataScopeType   @default(WORKSPACE)
+  isSystem       Boolean         @default(false)
+  organizationId String?
+  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  workspaceId    String?
+  workspace      Workspace?      @relation(fields: [workspaceId], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+
+  @@index([code])
+  @@index([organizationId])
+  @@index([workspaceId])
+}
+
+model Permission {
+  id              String           @id @default(cuid())
+  code            String           @unique // e.g. "bookings.view", "finance.manage"
+  domain          String           // "bookings", "finance", "users"
+  resource        String           // "booking", "ledger", "user"
+  action          String           // "view", "create", "cancel", "refund"
+  description     String?
+  createdAt       DateTime         @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@index([code])
+  @@index([domain])
+}
+
+model RolePermission {
+  id             String         @id @default(cuid())
+  roleId         String
+  role           Role           @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId   String
+  permission     Permission     @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  scopeOverride  DataScopeType?
+  createdAt      DateTime       @default(now())
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+model UserRole {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId         String
+  role           Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  workspaceId    String?
+  workspace      Workspace?    @relation(fields: [workspaceId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  scopeOverride  DataScopeType?
+  createdAt      DateTime      @default(now())
+
+  @@unique([userId, roleId, workspaceId])
+  @@index([userId])
+  @@index([roleId])
+  @@index([workspaceId])
+  @@index([organizationId])
+}
+
+model WorkspaceMembership {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isDefault   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId])
+  @@index([userId])
+}
+
+model Session {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token            String    @unique
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  ipAddress        String?
+  userAgent        String?
+  isSupportSession Boolean   @default(false)
+  supportReason    String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([token])
+  @@index([userId])
 }
 
 // ==========================================
@@ -885,16 +1029,29 @@ model AIAction {
 // ==========================================
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  user       User?    @relation(fields: [userId], references: [id])
-  action     String   // "CREATE", "UPDATE", "DELETE", "AUTHORIZE", "SETTLE"
-  entityType String   // "Booking", "Payment", "VendorContract", "User"
-  entityId   String
-  changesJson Json?
-  ipAddress  String?
-  createdAt  DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  organizationId String?
+  workspaceId    String?
+  action         String   // "CREATE", "UPDATE", "DELETE", "AUTHORIZE", "DENIED", "ROLE_CHANGED", "PERMISSION_CHANGED", "SESSION_REVOKED"
+  permission     String?
+  entityType     String?  // Legacy compat
+  entityId       String?  // Legacy compat
+  resourceType   String?
+  resourceId     String?
+  result         String?  // "AUTHORIZED", "DENIED", "SUCCESS", "FAILED"
+  changesJson    Json?
+  ipAddress      String?
+  userAgent      String?
+  requestId      String?
+  metadata       Json?
+  createdAt      DateTime @default(now())
 
   @@index([entityType, entityId])
   @@index([userId])
+  @@index([organizationId])
+  @@index([workspaceId])
+  @@index([action])
+  @@index([createdAt])
 }
