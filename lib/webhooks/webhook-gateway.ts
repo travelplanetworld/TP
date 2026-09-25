@@ -75,6 +75,10 @@ export class WebhookVerificationGateway {
     return WebhookVerificationGateway.instance;
   }
 
+  public getSigningSecret(connectorCode: string): string | undefined {
+    return this.signingSecrets[connectorCode];
+  }
+
   /**
    * Verify signature using HMAC-SHA256
    */

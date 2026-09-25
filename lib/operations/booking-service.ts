@@ -53,6 +53,7 @@ export interface BookingDetails {
     netAmountPaid: number;
   };
   status: BookingLifecycleState;
+  fulfillmentStage?: 'ISSUANCE_PENDING' | 'ISSUED' | 'FAILED' | string;
   ticketVouchers: TicketVoucher[];
   auditHistory: { state: BookingLifecycleState; timestamp: Date; actor: string }[];
   createdAt: Date;
@@ -111,6 +112,7 @@ export class BookingOperationsService {
         netAmountPaid: 52499,
       },
       status: 'CONFIRMED',
+      fulfillmentStage: 'ISSUANCE_PENDING',
       ticketVouchers: [
         {
           voucherId: 'vch_fl_01',
@@ -158,6 +160,10 @@ export class BookingOperationsService {
 
   getBookingByNumber(bookingNumber: string): BookingDetails | undefined {
     return this.bookings.get(bookingNumber);
+  }
+
+  getBooking(bookingNumber: string): BookingDetails | undefined {
+    return this.getBookingByNumber(bookingNumber);
   }
 
   async issueTickets(bookingNumber: string, actorEmail: string): Promise<BookingDetails> {

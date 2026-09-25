@@ -20,6 +20,7 @@ export interface LedgerEntry {
 }
 
 export interface JournalTransaction {
+  id?: string;
   transactionId: string;
   reference: string;
   eventType: 'BOOKING_PAYMENT_CAPTURED' | 'SUPPLIER_PAYABLE_RECOGNIZED' | 'REFUND_ISSUED' | 'SUPPLIER_SETTLEMENT_PAID';
@@ -178,6 +179,13 @@ export class LedgerAccountingService {
 
   getAllEntries(): LedgerEntry[] {
     return this.allEntries;
+  }
+
+  getJournals(): (JournalTransaction & { id: string })[] {
+    return this.transactions.map(t => ({
+      ...t,
+      id: t.transactionId,
+    }));
   }
 }
 
