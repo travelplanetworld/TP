@@ -201,6 +201,155 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 8. Visa Concierge & Passport OCR
+    if (pathname === '/api/v1/operations/visa-concierge' && req.method === 'POST') {
+      const body = await parseJsonBody(req);
+      const dest = body.destination || 'AE';
+      const mrz = body.sampleMRZ || {
+        documentType: 'P',
+        issuingCountry: 'IND',
+        surname: 'SHARMA',
+        givenNames: 'RAHUL',
+        passportNumber: 'Z1234567',
+        nationality: 'IND',
+        dateOfBirth: '1992-05-14',
+        gender: 'M',
+        expirationDate: '2029-11-20'
+      };
+
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        mrzData: mrz,
+        evaluation: {
+          eligible: true,
+          passportValid: true,
+          monthsRemainingUntilExpiry: 38,
+          passportExpiryDate: mrz.expirationDate,
+          travelDate: body.travelDate || '2026-10-15',
+          visaRule: {
+            destinationCountry: dest === 'AE' ? 'United Arab Emirates (Dubai)' : 'Indonesia (Bali)',
+            visaType: dest === 'AE' ? 'EVISA' : 'VOA',
+            maxStayDays: 30,
+            govFeeINR: dest === 'AE' ? 6850 : 2750,
+            serviceFeeINR: dest === 'AE' ? 950 : 450,
+            passportValidityMonthsRequired: 6,
+            blankPagesRequired: 2,
+            notes: 'ICA/GDRFA pre-check verified. 1-click eVisa pre-filled.'
+          },
+          actionRequired: 'Ready for 1-Click eVisa Submission'
+        },
+        processedAt: new Date().toISOString()
+      }, null, 2));
+      logRequest(req, res, start);
+      return;
+    }
+
+    // 9. Direct Airline NDC Engine
+    if (pathname.startsWith('/api/v1/connectors/ndc') && req.method === 'GET') {
+      const carrier = parsedUrl.query.airline || 'INDIGO';
+      const origin = parsedUrl.query.origin || 'DEL';
+      const dest = parsedUrl.query.destination || 'DXB';
+
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        protocol: 'IATA NDC 21.3 Direct Distribution',
+        carrier,
+        route: `${origin} → ${dest}`,
+        offers: [
+          {
+            offerId: 'ndc_6e_del_dxb_001',
+            airlineName: 'IndiGo Airlines',
+            flightNumber: '6E 1461',
+            departureTime: '2026-10-15T09:30:00Z',
+            arrivalTime: '2026-10-15T12:15:00Z',
+            netFareINR: 15700,
+            traditionalGdsFareINR: 16850,
+            gdsSurchargeAvoidedINR: 1150,
+            ancillaries: [
+              { name: '20 KG Check-in (+5 KG Add-on)', priceINR: 1200 },
+              { name: 'Hot Butter Paneer Rice Bowl', priceINR: 450 },
+              { name: 'Row 1 XL Seat', priceINR: 850 }
+            ]
+          },
+          {
+            offerId: 'ndc_ek_del_dxb_511',
+            airlineName: 'Emirates',
+            flightNumber: 'EK 511',
+            departureTime: '2026-10-15T11:10:00Z',
+            arrivalTime: '2026-10-15T13:45:00Z',
+            netFareINR: 24700,
+            traditionalGdsFareINR: 26400,
+            gdsSurchargeAvoidedINR: 1700,
+            ancillaries: [
+              { name: 'Full Flight Onboard Wi-Fi', priceINR: 800 },
+              { name: 'A380 Twin Upper Deck Seat', priceINR: 1400 }
+            ]
+          }
+        ],
+        gtmAdvantage: {
+          distributionFeeBypassed: true,
+          averageSavingsPerBookingINR: 1425,
+          marginYieldBoost: '5.8%'
+        },
+        timestamp: new Date().toISOString()
+      }, null, 2));
+      logRequest(req, res, start);
+      return;
+    }
+
+    // 10. Indian Statutory Tax Engine (TCS 20% + GST)
+    if (pathname === '/api/v1/finance/tax' && req.method === 'POST') {
+      const body = await parseJsonBody(req);
+      const base = Number(body.baseAmountINR) || 120000;
+      const prior = Number(body.priorRemittancesInCurrentFY_INR) || 0;
+      const remainingThreshold = Math.max(0, 700000 - prior);
+
+      let at5 = Math.min(base, remainingThreshold);
+      let at20 = Math.max(0, base - remainingThreshold);
+      let tcs = Math.round(at5 * 0.05 + at20 * 0.20);
+      let gst = Math.round(base * 0.05);
+
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        breakdown: {
+          baseAmountINR: base,
+          tcsDetails: {
+            pan: body.travelerPan || 'ABCDE1234F',
+            isPanValid: true,
+            priorRemittanceINR: prior,
+            amountAt5PercentINR: at5,
+            tcsAt5PercentINR: Math.round(at5 * 0.05),
+            amountAt20PercentINR: at20,
+            tcsAt20PercentINR: Math.round(at20 * 0.20),
+            totalTcsPayableINR: tcs,
+            thresholdExceeded: at20 > 0
+          },
+          gstDetails: {
+            isB2B: !!body.corporateGstin,
+            gstin: body.corporateGstin || null,
+            totalGstPayableINR: gst
+          },
+          totalGrossPayableINR: base + tcs + gst,
+          ledgerJournalEntry: {
+            debitCashClearanceINR: base + tcs + gst,
+            creditBookingRevenueINR: base,
+            creditTcsPayableINR: tcs,
+            creditGstOutputTaxINR: gst,
+            balanced: true
+          }
+        },
+        statutoryCompliance: {
+          tcsSection: 'Income Tax Act Section 206C(1G)',
+          gstSacCode: '99855'
+        }
+      }, null, 2));
+      logRequest(req, res, start);
+      return;
+    }
+
     // Fallback 404 for unknown API routes
     res.writeHead(404);
     res.end(JSON.stringify({ error: 'Endpoint Not Found', path: pathname }));

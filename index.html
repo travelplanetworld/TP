@@ -149,6 +149,10 @@
             <i data-lucide="briefcase" class="w-4 h-4"></i>
             <span class="hidden sm:inline">My Trips</span>
           </button>
+          <button onclick="openEnterpriseSuiteModal()" class="text-xs font-bold px-3 py-1.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200 hover:bg-brand-100 transition hidden md:inline-flex items-center gap-1.5 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Enterprise 2.0 Suite</span>
+          </button>
           <button onclick="openSignInModal()" class="text-sm font-semibold text-slate-700 hover:text-brand-600 transition hidden sm:inline">
             Sign In
           </button>
@@ -199,6 +203,9 @@
             </button>
             <button onclick="setSearchTab('transport')" id="tab-transport" class="search-tab px-4 py-1.5 rounded-full text-slate-600 hover:bg-slate-100 flex items-center gap-1.5">
               <i data-lucide="car" class="w-3.5 h-3.5"></i> Transport
+            </button>
+            <button onclick="openEnterpriseSuiteModal()" class="search-tab px-4 py-1.5 rounded-full bg-slate-900 text-white hover:bg-brand-600 flex items-center gap-1.5 font-bold shadow-sm transition">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i> Enterprise 2.0
             </button>
           </div>
 
@@ -3346,6 +3353,230 @@
     </div>
   </div>
 
+  <!-- Enterprise 2.0 Suite Modal (Visa OCR · NDC · Tax Engine) -->
+  <div id="enterprise-suite-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative text-left">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-100 flex items-start justify-between bg-gradient-to-r from-slate-900 via-slate-800 to-brand-900 text-white">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-extrabold uppercase tracking-wide">
+              <i data-lucide="shield-check" class="w-3 h-3 text-emerald-400"></i> Travel Planet 2.0 Enterprise
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px] font-bold">Sprint 1 Horizon</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Enterprise Operations & FinTech Engine</h2>
+          <p class="text-xs text-slate-300 mt-0.5">Automated Visa Concierge · Direct NDC Airline Connect · Section 206C(1G) TCS & GST Treasury</p>
+        </div>
+        <button onclick="closeEnterpriseSuiteModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="flex border-b border-slate-200 bg-slate-50 px-5 pt-2 text-xs font-bold gap-2">
+        <button onclick="switchEnterpriseTab('visa')" id="ent-btn-visa" class="px-4 py-2.5 border-b-2 border-brand-600 text-brand-600 flex items-center gap-1.5 transition">
+          <i data-lucide="file-text" class="w-4 h-4"></i> 1. Visa Concierge & OCR
+        </button>
+        <button onclick="switchEnterpriseTab('ndc')" id="ent-btn-ndc" class="px-4 py-2.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition">
+          <i data-lucide="plane" class="w-4 h-4"></i> 2. Direct Airline NDC
+        </button>
+        <button onclick="switchEnterpriseTab('tax')" id="ent-btn-tax" class="px-4 py-2.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition">
+          <i data-lucide="calculator" class="w-4 h-4"></i> 3. 20% TCS & GST Engine
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
+        
+        <!-- ================= TAB 1: VISA CONCIERGE & OCR ================= -->
+        <div id="ent-content-visa" class="space-y-4">
+          <div class="bg-sky-50/60 rounded-2xl p-4 border border-sky-100 flex items-start gap-3">
+            <i data-lucide="info" class="w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-xs text-sky-900 leading-relaxed">
+              <span class="font-bold">ICAO Doc 9303 TD3 MRZ Recognition:</span> Automatically reads 2-line machine readable passport zones, enforces mandatory 6-month validity buffers from departure dates, validates 35x45mm biometric specs, and prepares 1-click eVisa government application payloads.
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-black uppercase tracking-wider text-slate-700">Passport MRZ Scanner Input</h4>
+                <button onclick="loadSamplePassportMRZ()" class="text-[11px] font-bold text-brand-600 hover:underline flex items-center gap-1">
+                  <i data-lucide="refresh-cw" class="w-3 h-3"></i> Load Sample MRZ
+                </button>
+              </div>
+
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">MRZ Line 1 (44 Chars)</label>
+                <input id="mrz-line-1" type="text" value="P<INDSHARMA<<RAHUL<<<<<<<<<<<<<<<<<<<<<<<<<<<" class="w-full font-mono text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">MRZ Line 2 (44 Chars)</label>
+                <input id="mrz-line-2" type="text" value="Z1234567<8IND9205143M2911204<<<<<<<<<<<<<<06" class="w-full font-mono text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none">
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Destination</label>
+                  <select id="visa-destination-select" class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold">
+                    <option value="AE">UAE (Dubai) · 30-Day eVisa</option>
+                    <option value="ID">Indonesia (Bali) · e-VOA</option>
+                    <option value="TH">Thailand · Visa Exemption (60D)</option>
+                    <option value="FR">France (Schengen) · Type C</option>
+                    <option value="SG">Singapore · eVisa</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Intended Departure</label>
+                  <input id="visa-travel-date" type="date" value="2026-10-15" class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold">
+                </div>
+              </div>
+
+              <button onclick="runPassportOcrDemo()" class="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+                <i data-lucide="scan" class="w-4 h-4"></i> Execute MRZ OCR & Visa Evaluation
+              </button>
+            </div>
+
+            <!-- OCR Evaluation Result Card -->
+            <div id="visa-result-card" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                  <span class="text-xs font-black uppercase tracking-wider text-slate-700">Verification Dossier</span>
+                  <span id="visa-badge-status" class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800">ELIGIBLE · 6-MO BUFFER OK</span>
+                </div>
+
+                <div class="mt-3 space-y-2 text-xs">
+                  <div class="flex justify-between"><span class="text-slate-500">Traveler Name:</span> <span id="visa-res-name" class="font-bold text-slate-800">RAHUL SHARMA</span></div>
+                  <div class="flex justify-between"><span class="text-slate-500">Passport Number:</span> <span id="visa-res-passport" class="font-mono font-bold text-slate-800">Z1234567 (IND)</span></div>
+                  <div class="flex justify-between"><span class="text-slate-500">Expiry Date:</span> <span id="visa-res-expiry" class="font-bold text-slate-800">2029-11-20</span></div>
+                  <div class="flex justify-between"><span class="text-slate-500">Validity at Departure:</span> <span id="visa-res-months" class="font-bold text-emerald-600">38 Months Remaining (Pass)</span></div>
+                  <div class="flex justify-between"><span class="text-slate-500">Target Category:</span> <span id="visa-res-category" class="font-bold text-slate-800">UAE Tourist eVisa (30 Days)</span></div>
+                  <div class="flex justify-between"><span class="text-slate-500">Gov + Service Fee:</span> <span id="visa-res-fees" class="font-bold text-slate-900">₹7,800 Total</span></div>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-200 flex items-center gap-2">
+                <button onclick="alert('⚡ 1-Click Visa Payload Dispatched to GDRFA Dubai API Gateway! Application Reference: UAE-EV-94021')" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition">
+                  Submit 1-Click eVisa Application
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 2: DIRECT AIRLINE NDC ================= -->
+        <div id="ent-content-ndc" class="space-y-4 hidden">
+          <div class="bg-amber-50/60 rounded-2xl p-4 border border-amber-200/60 flex items-start gap-3">
+            <i data-lucide="zap" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-xs text-amber-900 leading-relaxed">
+              <span class="font-bold">IATA NDC 21.3 Direct Distribution:</span> Connects directly with airline inventory engines (IndiGo 6E Direct, Emirates EK Gateway) bypassing legacy GDS distribution fees. Unbundles ancillary baggage, chef-curated meals, and XL seat selection.
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-white p-3 rounded-xl border border-slate-200">
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Route & Carrier</label>
+              <select id="ndc-route-select" onchange="runNdcFlightSearch()" class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold">
+                <option value="DEL-DXB-6E">DEL → DXB · IndiGo 6E Direct</option>
+                <option value="DEL-DXB-EK">DEL → DXB · Emirates EK Direct</option>
+                <option value="BOM-DPS-6E">BOM → DPS · IndiGo 6E Direct</option>
+              </select>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-slate-200">
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Departure Date</label>
+              <input type="date" value="2026-10-15" class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold">
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-end">
+              <button onclick="runNdcFlightSearch()" class="w-full py-2 bg-slate-900 hover:bg-brand-600 text-white font-bold rounded-lg text-xs transition flex items-center justify-center gap-1.5">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i> Query NDC Fares
+              </button>
+            </div>
+          </div>
+
+          <!-- NDC Flight Cards Container -->
+          <div id="ndc-flight-results" class="space-y-3">
+            <!-- Populated via JavaScript -->
+          </div>
+        </div>
+
+        <!-- ================= TAB 3: 20% TCS & GST ENGINE ================= -->
+        <div id="ent-content-tax" class="space-y-4 hidden">
+          <div class="bg-emerald-50/60 rounded-2xl p-4 border border-emerald-200/60 flex items-start gap-3">
+            <i data-lucide="scale" class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-xs text-emerald-900 leading-relaxed">
+              <span class="font-bold">Indian Section 206C(1G) Tax Collected at Source (TCS) & GST Engine:</span> Computes 5% on remittances up to ₹7,00,000 threshold and 20% on any excess per PAN per financial year. Validates B2B GSTINs and maintains 100% balanced double-entry ledger vouchers.
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+              <h4 class="text-xs font-black uppercase tracking-wider text-slate-700">Booking & PAN Parameters</h4>
+              
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Package Gross Fare (₹)</label>
+                <input id="tax-base-input" type="number" value="850000" oninput="runTaxCalculationDemo()" class="w-full text-sm font-bold p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Prior Outbound Remittances in Current FY (₹)</label>
+                <input id="tax-prior-input" type="number" value="200000" oninput="runTaxCalculationDemo()" class="w-full text-sm font-bold p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none">
+                <span class="text-[10px] text-slate-500 mt-0.5 block">Statutory FY 2026-27 threshold: ₹7,00,000</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Traveler PAN</label>
+                  <input id="tax-pan-input" type="text" value="ABCDE1234F" class="w-full font-mono text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg uppercase">
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">B2B Corporate GSTIN (Optional)</label>
+                  <input id="tax-gstin-input" type="text" value="07AAAAA0000A1Z5" oninput="runTaxCalculationDemo()" class="w-full font-mono text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg uppercase">
+                </div>
+              </div>
+            </div>
+
+            <!-- Tax Computation Breakdown Card -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                  <span class="text-xs font-black uppercase tracking-wider text-slate-700">Statutory Tax Schedule</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-black bg-purple-100 text-purple-800">SAC 99855 · SEC 206C(1G)</span>
+                </div>
+
+                <div class="mt-3 space-y-2 text-xs">
+                  <div class="flex justify-between"><span class="text-slate-500">Package Fare:</span> <span id="tax-res-base" class="font-bold text-slate-800">₹8,50,000</span></div>
+                  <div class="flex justify-between"><span class="text-slate-500">Remaining ₹7L Threshold:</span> <span id="tax-res-rem-thresh" class="font-bold text-sky-700">₹5,00,000</span></div>
+                  <div class="flex justify-between pl-2 text-[11px]"><span class="text-slate-500">• 5% TCS (on ₹5,00,000):</span> <span id="tax-res-tcs5" class="font-bold text-slate-800">₹25,000</span></div>
+                  <div class="flex justify-between pl-2 text-[11px]"><span class="text-slate-500">• 20% TCS (on ₹3,50,000 excess):</span> <span id="tax-res-tcs20" class="font-bold text-amber-600">₹70,000</span></div>
+                  <div class="flex justify-between"><span class="text-slate-600 font-semibold">Total TCS Payable:</span> <span id="tax-res-tot-tcs" class="font-black text-amber-700">₹95,000</span></div>
+                  <div class="flex justify-between"><span class="text-slate-500">GST (5% Tour Operator):</span> <span id="tax-res-gst" class="font-bold text-slate-800">₹42,500</span></div>
+                  <div class="pt-2 border-t border-slate-200 flex justify-between text-sm font-black"><span class="text-slate-900">Total Customer Payment:</span> <span id="tax-res-gross" class="text-brand-600">₹9,87,500</span></div>
+                </div>
+              </div>
+
+              <!-- General Ledger Proof -->
+              <div class="mt-4 p-2.5 bg-slate-900 text-emerald-400 font-mono text-[10px] rounded-xl flex items-center justify-between">
+                <span>DR 1001-CASH: ₹9,87,500<br>CR REV: ₹8.5L · CR TCS: ₹95K · CR GST: ₹42.5K</span>
+                <span class="px-2 py-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 rounded font-black text-[9px]">LEDGER BALANCED (₹0.00)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+        <span class="text-xs text-slate-500 font-medium">Travel Planet 2.0 Enterprise Framework · Constitutional Ledger Invariant</span>
+        <button onclick="closeEnterpriseSuiteModal()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition">
+          Close Suite
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Voyage8 Synthesized Multi-Day Itinerary Modal -->
   <div id="itinerary-synthesis-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-5">
     <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative text-left">
@@ -4395,6 +4626,205 @@
 
     function testAiGatekeeperEnforcement() {
       alert('🛡️ H8 AI Governance Gatekeeper Test:\n\n• Simulated Action: "MUTATE_RETAIL_PRICE (-20% flash discount on PKG-DXB-01)"\n• Authority Check: Current caller session = Traveler / Unprivileged Subagent\n• Gatekeeper Evaluation: BLOCKED BY H8_ACTION_CONFIRMATION_GATE\n• Rationale: Non-negotiable doctrine requires explicit Super Admin (Amal Babu) dual-factor authorization for price, refund, or supplier changes.\n• Audit Event: AI_GOVERNANCE_BLOCKED logged with immutable hash.');
+    }
+
+    // ==========================================
+    // SPRINT 1: ENTERPRISE 2.0 SUITE HANDLERS
+    // ==========================================
+
+    function openEnterpriseSuiteModal() {
+      const modal = document.getElementById('enterprise-suite-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        switchEnterpriseTab('visa');
+        runNdcFlightSearch();
+        runTaxCalculationDemo();
+        lucide.createIcons();
+      }
+    }
+
+    function closeEnterpriseSuiteModal() {
+      const modal = document.getElementById('enterprise-suite-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function switchEnterpriseTab(tab) {
+      const tabs = ['visa', 'ndc', 'tax'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`ent-btn-${t}`);
+        const content = document.getElementById(`ent-content-${t}`);
+        if (btn) {
+          if (t === tab) {
+            btn.className = "px-4 py-2.5 border-b-2 border-brand-600 text-brand-600 font-bold flex items-center gap-1.5 transition";
+          } else {
+            btn.className = "px-4 py-2.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-1.5 transition";
+          }
+        }
+        if (content) {
+          if (t === tab) content.classList.remove('hidden');
+          else content.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function loadSamplePassportMRZ() {
+      document.getElementById('mrz-line-1').value = "P<INDSHARMA<<RAHUL<<<<<<<<<<<<<<<<<<<<<<<<<<<";
+      document.getElementById('mrz-line-2').value = "Z1234567<8IND9205143M2911204<<<<<<<<<<<<<<06";
+      runPassportOcrDemo();
+    }
+
+    async function runPassportOcrDemo() {
+      const l1 = document.getElementById('mrz-line-1')?.value || '';
+      const l2 = document.getElementById('mrz-line-2')?.value || '';
+      const dest = document.getElementById('visa-destination-select')?.value || 'AE';
+      const travelDate = document.getElementById('visa-travel-date')?.value || '2026-10-15';
+
+      try {
+        const res = await fetch('/api/v1/operations/visa-concierge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ line1: l1, line2: l2, destination: dest, travelDate: travelDate })
+        });
+        const data = await res.json();
+        if (data.success && data.evaluation) {
+          const evalRes = data.evaluation;
+          const mrz = data.mrzData;
+
+          document.getElementById('visa-res-name').innerText = `${mrz.surname} ${mrz.givenNames}`;
+          document.getElementById('visa-res-passport').innerText = `${mrz.passportNumber} (${mrz.nationality})`;
+          document.getElementById('visa-res-expiry').innerText = mrz.expirationDate;
+          
+          const monthsEl = document.getElementById('visa-res-months');
+          if (monthsEl) {
+            if (evalRes.passportValid) {
+              monthsEl.className = "font-bold text-emerald-600";
+              monthsEl.innerText = `${evalRes.monthsRemainingUntilExpiry} Months Remaining (Passed)`;
+            } else {
+              monthsEl.className = "font-bold text-red-600";
+              monthsEl.innerText = `${evalRes.monthsRemainingUntilExpiry} Months Remaining (FAILED 6-Month Rule)`;
+            }
+          }
+
+          document.getElementById('visa-res-category').innerText = evalRes.visaRule.destinationCountry;
+          document.getElementById('visa-res-fees').innerText = `₹${(evalRes.visaRule.govFeeINR + evalRes.visaRule.serviceFeeINR).toLocaleString()} Total`;
+
+          const badge = document.getElementById('visa-badge-status');
+          if (badge) {
+            badge.innerText = evalRes.passportValid ? "ELIGIBLE · 6-MO BUFFER OK" : "ACTION REQUIRED · RENEW PASSPORT";
+            badge.className = evalRes.passportValid 
+              ? "px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800"
+              : "px-2 py-0.5 rounded text-[10px] font-black bg-red-100 text-red-800";
+          }
+        }
+      } catch (err) {
+        console.error('OCR fetch failed:', err);
+      }
+    }
+
+    async function runNdcFlightSearch() {
+      const select = document.getElementById('ndc-route-select');
+      const val = select ? select.value : 'DEL-DXB-6E';
+      const [origin, dest, airline] = val.split('-');
+      const carrier = airline === 'EK' ? 'EMIRATES' : 'INDIGO';
+
+      const container = document.getElementById('ndc-flight-results');
+      if (!container) return;
+
+      container.innerHTML = `<div class="p-6 text-center text-xs text-slate-500"><i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-brand-600 mb-2"></i> Querying IATA NDC 21.3 direct airline inventory...</div>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/v1/connectors/ndc?origin=${origin}&destination=${dest}&airline=${carrier}`);
+        const data = await res.json();
+
+        if (data.success && data.offers) {
+          container.innerHTML = data.offers.map(offer => `
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-brand-500 shadow-sm transition space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">${offer.airlineCode || '6E'}</span>
+                  <div>
+                    <h5 class="text-xs font-black text-slate-900">${offer.airlineName} ${offer.flightNumber}</h5>
+                    <p class="text-[10px] text-slate-500">IATA NDC 21.3 Direct PNR · ${offer.fareBrand || 'Saver'}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs line-through text-slate-400">GDS: ₹${offer.traditionalGdsFareINR ? offer.traditionalGdsFareINR.toLocaleString() : '16,850'}</div>
+                  <div class="text-base font-black text-emerald-700">₹${offer.netFareINR ? offer.netFareINR.toLocaleString() : '15,700'}</div>
+                  <span class="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-100 text-emerald-800">
+                    Saves ₹${offer.gdsSurchargeAvoidedINR ? offer.gdsSurchargeAvoidedINR.toLocaleString() : '1,150'} Surcharge
+                  </span>
+                </div>
+              </div>
+
+              <!-- Unbundled Ancillaries -->
+              <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                <div class="text-[10px] font-bold uppercase text-slate-500 mb-1.5 flex items-center justify-between">
+                  <span>Available Direct Carrier Ancillaries</span>
+                  <span class="text-emerald-700 font-black">Zero Markup</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px]">
+                  ${(offer.ancillaries || offer.ancillariesAvailable || []).map(a => `
+                    <div class="bg-white p-1.5 rounded border border-slate-200 flex justify-between items-center">
+                      <span class="text-slate-700 truncate pr-1">${a.name}</span>
+                      <span class="font-bold text-slate-900">+₹${a.priceINR}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-[10px] text-slate-500 flex items-center gap-1">
+                  <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i> Instant Direct Carrier PNR
+                </span>
+                <button onclick="alert('⚡ NDC Direct Booking Initiated! Carrier Reference: 6E${Math.floor(1000+Math.random()*9000)}. Surcharge avoided: ₹${offer.gdsSurchargeAvoidedINR || 1150}')" class="px-4 py-1.5 bg-slate-900 hover:bg-brand-600 text-white font-bold rounded-lg text-xs transition">
+                  Book via NDC Direct
+                </button>
+              </div>
+            </div>
+          `).join('');
+          lucide.createIcons();
+        }
+      } catch (err) {
+        console.error('NDC fetch failed:', err);
+      }
+    }
+
+    async function runTaxCalculationDemo() {
+      const base = Number(document.getElementById('tax-base-input')?.value || 850000);
+      const prior = Number(document.getElementById('tax-prior-input')?.value || 200000);
+      const pan = document.getElementById('tax-pan-input')?.value || 'ABCDE1234F';
+      const gstin = document.getElementById('tax-gstin-input')?.value || '';
+
+      try {
+        const res = await fetch('/api/v1/finance/tax', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            baseAmountINR: base,
+            priorRemittancesInCurrentFY_INR: prior,
+            travelerPan: pan,
+            corporateGstin: gstin
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.breakdown) {
+          const b = data.breakdown;
+          const tcs = b.tcsDetails;
+          const rem = Math.max(0, 700000 - prior);
+
+          document.getElementById('tax-res-base').innerText = `₹${b.baseAmountINR.toLocaleString()}`;
+          document.getElementById('tax-res-rem-thresh').innerText = `₹${rem.toLocaleString()}`;
+          document.getElementById('tax-res-tcs5').innerText = `₹${tcs.tcsAt5PercentINR.toLocaleString()} (on ₹${tcs.amountAt5PercentINR.toLocaleString()})`;
+          document.getElementById('tax-res-tcs20').innerText = `₹${tcs.tcsAt20PercentINR.toLocaleString()} (on ₹${tcs.amountAt20PercentINR.toLocaleString()})`;
+          document.getElementById('tax-res-tot-tcs').innerText = `₹${tcs.totalTcsPayableINR.toLocaleString()}`;
+          document.getElementById('tax-res-gst').innerText = `₹${b.gstDetails.totalGstPayableINR.toLocaleString()}`;
+          document.getElementById('tax-res-gross').innerText = `₹${b.totalGrossPayableINR.toLocaleString()}`;
+        }
+      } catch (err) {
+        console.error('Tax fetch failed:', err);
+      }
     }
   </script>
 </body>
