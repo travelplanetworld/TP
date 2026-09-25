@@ -164,10 +164,14 @@ async function main() {
       { id: 'overview1', componentKey: 'richText', locked: false, hidden: false, props: {},
         bindings: [{ id: 'ob1', kind: 'FIELD', path: 'entity.description', targetProp: 'html', fallback: '' }],
         actions: [], responsive: [], style: { variants: [] }, children: [] },
-      { id: 'places1', componentKey: 'grid', locked: false, hidden: false, props: { columns: 3, gap: 'md' },
-        bindings: [{ id: 'pb1', kind: 'COLLECTION', path: 'collections.places', targetProp: 'children', fallback: [] }],
-        actions: [], responsive: [], style: { variants: [] }, children: [
-          { id: 'pc1', componentKey: 'placeCard', locked: false, hidden: false, props: {}, bindings: [{ id: 'pcb', kind: 'FIELD', path: 'entity.name', targetProp: 'name', fallback: '' }], actions: [], responsive: [], style: { variants: [] }, children: [] },
+      { id: 'places1', componentKey: 'heading', locked: false, hidden: false, props: { text: 'Featured Places', level: 'h2' }, bindings: [], actions: [], responsive: [], style: { variants: [] }, children: [] },
+      { id: 'grid1', componentKey: 'grid', locked: false, hidden: false, props: { columns: 3, gap: 'md' },
+        bindings: [], actions: [], responsive: [], style: { variants: [] }, children: [
+          { id: 'pc1', componentKey: 'placeCard', locked: false, hidden: false, props: {}, bindings: [{ id: 'pcb1', kind: 'FIELD', path: 'entity.places.0', targetProp: 'place', fallback: null }], actions: [], responsive: [], style: { variants: [] }, children: [] },
+          { id: 'pc2', componentKey: 'placeCard', locked: false, hidden: false, props: {}, bindings: [{ id: 'pcb2', kind: 'FIELD', path: 'entity.places.1', targetProp: 'place', fallback: null }], actions: [], responsive: [], style: { variants: [] }, children: [],
+            visibility: { all: [{ field: 'entity.places.1', operator: 'EXISTS' }], any: [] } },
+          { id: 'pc3', componentKey: 'placeCard', locked: false, hidden: false, props: {}, bindings: [{ id: 'pcb3', kind: 'FIELD', path: 'entity.places.2', targetProp: 'place', fallback: null }], actions: [], responsive: [], style: { variants: [] }, children: [],
+            visibility: { all: [{ field: 'entity.places.2', operator: 'EXISTS' }], any: [] } },
         ] },
       { id: 'diaries1', componentKey: 'heading', locked: false, hidden: false, props: { text: 'Traveler Diaries', level: 'h2' }, bindings: [], actions: [], responsive: [], style: { variants: [] }, children: [] },
     ],
@@ -184,6 +188,14 @@ async function main() {
         createdBy: authorId, updatedBy: authorId,
         versions: { create: [{ version: 1, status: ExperienceStatus.PUBLISHED, composition: composition as object, changeNote: 'Initial VIBE demo publish', publishedBy: authorId, publishedAt: new Date(), createdBy: authorId }] },
       },
+    });
+  } else {
+    // keep the demo deterministic on re-runs (v1 snapshot refreshed in place)
+    await prisma.experience.update({ where: { id: experience.id }, data: { draftComposition: composition as object, status: ExperienceStatus.PUBLISHED, visibility: ExperienceVisibility.PUBLIC, entityType: SlugEntityType.DESTINATION, entityId: kerala.id, publishedVersion: 1 } });
+    await prisma.experienceVersion.upsert({
+      where: { experienceId_version: { experienceId: experience.id, version: 1 } },
+      update: { composition: composition as object },
+      create: { experienceId: experience.id, version: 1, status: ExperienceStatus.PUBLISHED, composition: composition as object, changeNote: 'Initial VIBE demo publish', publishedBy: authorId, publishedAt: new Date(), createdBy: authorId },
     });
   }
   await registerPath(SlugEntityType.DESTINATION, kerala.id, kerala.slug, `/destinations/${kerala.slug}`, 'Kerala | Travel Planet Voyage8', 'God\u2019s Own Country — rendered by the VIBE Experience runtime.');
