@@ -35,7 +35,7 @@ export interface TestCaseResult {
   status: 'PASSED' | 'FAILED';
   durationMs: number;
   details: string;
-  evidence: Record<string, unknown>;
+  evidence: Record<string, any>;
 }
 
 export interface GtmAuditReport {
@@ -167,7 +167,7 @@ export class VerificationSuite {
         status: isFreshnessEvaluated ? 'PASSED' : 'FAILED',
         durationMs: Date.now() - t4Start,
         details: `Automated TTL scanner active: ${stats.fresh} FRESH, ${stats.stale} STALE, ${stats.expired} EXPIRED cached offers.`,
-        evidence: stats,
+        evidence: { ...stats },
       });
     } catch (err: unknown) {
       results.push({
@@ -235,7 +235,7 @@ export class VerificationSuite {
         status: isQuoteAccurate ? 'PASSED' : 'FAILED',
         durationMs: Date.now() - t6Start,
         details: 'Apex Voyages wholesale net rate (₹42,000) correctly computed with 12% commission and 6% markup.',
-        evidence: quote,
+        evidence: { ...quote },
       });
     } catch (err: unknown) {
       results.push({
