@@ -17,7 +17,8 @@
     "db:seed:rbac": "ts-node prisma/seed.ts",
     "test:rbac": "node tests/rbac-matrix.test.js",
     "test:tenant-isolation": "node tests/tenant-isolation.test.js",
-    "test:all": "node tests/rbac-matrix.test.js && node tests/tenant-isolation.test.js"
+    "test:operational-chain": "node tests/operational-chain.test.js",
+    "test:all": "node tests/rbac-matrix.test.js && node tests/tenant-isolation.test.js && node tests/operational-chain.test.js"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",

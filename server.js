@@ -678,6 +678,106 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    // 17. CRM Customer 360 Endpoint
+    if (pathname === '/api/v1/crm/customer-360' && req.method === 'GET') {
+      const customerId = parsedUrl.query.customerId || 'usr_cust_rahul';
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        customerId,
+        customer: {
+          id: customerId,
+          name: 'Rahul Sharma',
+          email: 'rahul.sharma@example.com',
+          phone: '+91 98765 43210',
+          lifecycle: 'REPEAT_TRAVELER',
+          tier: 'PLATINUM',
+          totalSpent: 500290,
+          pan: 'ABCDE1234F',
+          passport: 'Z9876543'
+        },
+        lenses: {
+          crm: { openEnquiries: 1, activeQuotes: 1, leadsCount: 1 },
+          travel: { bookings: 2, trips: 1, completedTrips: 1 },
+          finance: { totalInvoiced: 500290, outstanding: 0, tcsAccumulated: 42000 },
+          documents: { passportValid: true, uaeEVisa: 'ACTIVE', insurance: 'ACTIVE' },
+          support: { openTickets: 0, csat: 5.0 }
+        },
+        aiSummary: {
+          recommendation: 'Call customer at 3:30 PM regarding suite upgrade at Atlantis The Royal before quote expiry.',
+          bookingPropensity: 88
+        }
+      }, null, 2));
+      logRequest(req, res, start);
+      return;
+    }
+
+    // 18. ERP Component Fulfillment Tasks Endpoint
+    if (pathname === '/api/v1/erp/tasks' && req.method === 'GET') {
+      const sampleTasks = [
+        { id: 'TSK-101', booking: 'TP-892401', client: 'Rahul Sharma', comp: 'FLIGHT', desc: 'Issue NDC Emirates PNR (EK501/EK502)', team: 'Airline Desk', priority: 'HIGH', slaMinutes: 60, status: 'IN_PROGRESS' },
+        { id: 'TSK-102', booking: 'TP-892401', client: 'Rahul Sharma', comp: 'HOTEL', desc: 'Lock Atlantis Palm Jumeirah Voucher', team: 'Hospitality Desk', priority: 'MEDIUM', slaMinutes: 120, status: 'OPEN' },
+        { id: 'TSK-103', booking: 'TP-892401', client: 'Rahul Sharma', comp: 'TRANSFER', desc: 'Private Chauffeur Limousine Dispatch', team: 'Ground Ops', priority: 'MEDIUM', slaMinutes: 240, status: 'OPEN' },
+        { id: 'TSK-104', booking: 'TP-892401', client: 'Rahul Sharma', comp: 'VISA', desc: 'ICAO Doc 9303 MRZ OCR & eVisa Check', team: 'Visa Concierge', priority: 'CRITICAL', slaMinutes: 90, status: 'COMPLETED' },
+        { id: 'TSK-105', booking: 'TP-884120', client: 'Dr. Anand Verma', comp: 'HOTEL', desc: 'Soneva Jani Overwater Villa Confirm', team: 'Hospitality Desk', priority: 'HIGH', slaMinutes: 45, status: 'IN_PROGRESS' }
+      ];
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        totalTasks: sampleTasks.length,
+        tasks: sampleTasks
+      }, null, 2));
+      logRequest(req, res, start);
+      return;
+    }
+
+    // 19. Finance General Ledger & Traceability Endpoint
+    if (pathname === '/api/v1/finance/ledger' && req.method === 'GET') {
+      const trace = [
+        { step: '1. Customer', type: 'CRM_CUSTOMER', id: 'usr_cust_rahul', details: 'Rahul Sharma (rahul.sharma@example.com)' },
+        { step: '2. Quote', type: 'CRM_QUOTE', id: 'Q-2026-9011', details: 'Dubai Family 5D Luxury Odyssey (₹3,15,290)' },
+        { step: '3. Booking', type: 'COMMERCE_BOOKING', id: 'TP-892401', details: 'Status: CONFIRMED | Currency: INR' },
+        { step: '4. Invoice', type: 'SALES_INVOICE', id: 'INV-2026-0891', details: 'Net: ₹3,09,800 + GST: ₹15,490' },
+        { step: '5. Payment', type: 'PAYMENT_CAPTURE', id: 'PAY-TP-892401', details: 'Razorpay Authorized & Captured' },
+        { step: '6. Journal', type: 'ACCOUNTING_JOURNAL', id: 'JRN-2026-891024', details: 'Balanced Debits == Credits (₹3,25,290)' },
+        { step: '7. Ledger', type: 'GENERAL_LEDGER', id: 'GL-1210 / GL-2200', details: 'Posted into Chart of Accounts' }
+      ];
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        isDoubleEntryBalanced: true,
+        totalDebits: 341040,
+        totalCredits: 341040,
+        traceChain: trace
+      }, null, 2));
+      logRequest(req, res, start);
+      return;
+    }
+
+    // 20. Finance Chart of Accounts Endpoint
+    if (pathname === '/api/v1/finance/chart-of-accounts' && req.method === 'GET') {
+      const sampleCoa = [
+        { code: '1100', name: 'Cash on Hand', category: 'ASSET', balance: 250000 },
+        { code: '1200', name: 'Operating Bank Account (HDFC/ICICI)', category: 'ASSET', balance: 8420000 },
+        { code: '1210', name: 'Gateway Settlement Clearing', category: 'ASSET', balance: 1250000 },
+        { code: '1300', name: 'Accounts Receivable', category: 'ASSET', balance: 3450000 },
+        { code: '2100', name: 'Accounts Payable', category: 'LIABILITY', balance: 4120000 },
+        { code: '2200', name: 'Customer Advance Bookings', category: 'LIABILITY', balance: 5890000 },
+        { code: '2300', name: 'GST Output Tax Payable', category: 'LIABILITY', balance: 420000 },
+        { code: '2310', name: 'TCS Collected Payable', category: 'LIABILITY', balance: 812000 },
+        { code: '4300', name: 'Holiday Packages Revenue', category: 'REVENUE', balance: 24800000 },
+        { code: '5200', name: 'Hotel & DMC Supplier Cost', category: 'COST_OF_SALES', balance: 15600000 }
+      ];
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        success: true,
+        totalAccounts: sampleCoa.length,
+        accounts: sampleCoa
+      }, null, 2));
+      logRequest(req, res, start);
+      return;
+    }
+
     // Fallback 404 for unknown API routes
     res.writeHead(404);
     res.end(JSON.stringify({ error: 'Endpoint Not Found', path: pathname }));
